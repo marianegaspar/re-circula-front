@@ -7,6 +7,7 @@ export const style = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+    padding: 20,
   },
   scrollContent: {
     paddingHorizontal: 24,
@@ -27,6 +28,7 @@ export const style = StyleSheet.create({
     marginBottom: 40,
   },
   logoText: {
+    fontFamily: 'Manrope-Bold',
     fontSize: 24,
     fontWeight: '800',
     color: COLORS.primary,
@@ -50,12 +52,14 @@ export const style = StyleSheet.create({
     marginBottom: 32,
   },
   title: {
+    fontFamily: 'Manrope-Bold',
     fontSize: 28,
     fontWeight: '800',
     color: COLORS.onSurface,
     marginBottom: 8,
   },
   subtitle: {
+    fontFamily: 'Manrope-Regular',
     fontSize: 14,
     color: COLORS.onSurfaceVariant,
     lineHeight: 20,
@@ -119,17 +123,15 @@ export const style = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.1)',
   },
   dividerText: {
-    fontSize: 9,
+    fontSize: 14,
     color: COLORS.onSurfaceVariant,
     paddingHorizontal: 12,
     letterSpacing: 2,
   },
   socialGrid: {
-    flexDirection: 'row',
-    gap: 12,
+    width: '100%',
   },
   socialButton: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -137,7 +139,7 @@ export const style = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
     borderRadius: 12,
-    height: 48,
+    height: 56,
     gap: 8,
   },
   socialIcon: {
