@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
@@ -39,6 +39,10 @@ export default function Login() {
 
   if (!fontsLoaded) {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
+  }
+
+  function entrar(){
+    router.replace('/home');
   }
 
   return (
@@ -123,6 +127,7 @@ export default function Login() {
           </LinearGradient>
         </TouchableOpacity>
       </View>
+      
       {/* Divider */}
       <View style={style.dividerContainer}>
         <View style={style.dividerLine} />
@@ -149,5 +154,6 @@ export default function Login() {
       </View>
     </View>
     </View>
+    
   );
 }

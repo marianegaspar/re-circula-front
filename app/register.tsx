@@ -1,9 +1,11 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { Link } from 'expo-router';
 import React, { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { useAppFonts } from "../hooks/use-App-Fonts";
 import { styles } from "./register-styles";
 import { COLORS } from "./themes";
-
 
 export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 48 48">
@@ -28,13 +30,17 @@ export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
 
 export default function Register() {
     const [showPassword, setShowPassword] = useState(false);
+      const { fontsLoaded } = useAppFonts();
+    
+      if (!fontsLoaded) {
+        return null; // O App fica travado na Splash Screen até as fontes estarem prontas
+      }
+    
     return(
     <View style={styles.container}>
-        {/* Background Glows simulados */}
-      <View style={styles.glowTop} />
-      <View style={styles.glowBottom} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}></ScrollView>
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
 
         {/* Header */}  
         <View style={styles.header}>
@@ -56,8 +62,112 @@ export default function Register() {
             <Text style={styles.cardSubtitle}>Comece sua jornada sustentável hoje.</Text>
           </View>
 
+          <View style={styles.form}>
+            {/* Nome Completo */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>NOME COMPLETO</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="Ex: João Silva" 
+                placeholderTextColor={COLORS.outline + '80'}
+              />
+            </View>
+
+            {/* Email */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>E-MAIL</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="nome@email.com" 
+                keyboardType="email-address"
+                placeholderTextColor={COLORS.outline + '80'}
+              />
+            </View>
+
+            {/* Senha */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>SENHA</Text>
+              <View style={styles.passwordWrapper}>
+                <TextInput 
+                  style={styles.inputPassword} 
+                  placeholder="••••••••" 
+                  secureTextEntry={!showPassword}
+                  placeholderTextColor={COLORS.outline + '80'}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <MaterialIcons 
+                    name={showPassword ? "visibility" : "visibility-off"} 
+                    size={20} 
+                    color={COLORS.outline} 
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Confirmar Senha */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>CONFIRMAR SENHA</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="••••••••" 
+                secureTextEntry={!showPassword}
+                placeholderTextColor={COLORS.outline + '80'}
+              />
+            </View>
+
+            <Link href ="/home" asChild>
+            <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8}>
+             
+              <Text style={styles.btnPrimaryText}>Criar conta</Text>
+          
+            </TouchableOpacity> 
+            </Link>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.line} />
+              <Text style={styles.dividerText}>OU</Text>
+              <View style={styles.line} />
+            </View>
+
+            <TouchableOpacity style={styles.btnGoogle} activeOpacity={0.7}>
+              <GoogleIcon size={20} />
+              <Text style={styles.btnGoogleText}>Cadastrar com Google</Text>
+            </TouchableOpacity>
+
+            <View style={styles.footerLink}>
+              <Text style={styles.footerText}>Já tem uma conta? </Text>
+              <Link href="/home" asChild>
+                <TouchableOpacity>
+                  <Text style={styles.signUpText}>Entrar</Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          </View>
+        </View>
+
+        {/* Metrics Section */}
+        <View style={styles.metricsGrid}>
+          <View style={[styles.metricCard, styles.leafLeft, { borderLeftColor: COLORS.primaryContainer }]}>
+            <View style={styles.metricHeader}>
+              <View style={[styles.dot, { backgroundColor: COLORS.primary }]} />
+              <Text style={[styles.metricLabel, { color: COLORS.primary }]}>REDUZIDO</Text>
+            </View>
+            <Text style={styles.metricValue}>14.2t</Text>
+            <Text style={styles.metricSub}>CO2 evitados</Text>
+          </View>
+
+          <View style={[styles.metricCard, styles.leafRight, { borderLeftColor: COLORS.secondary }]}>
+            <View style={styles.metricHeader}>
+              <View style={[styles.dot, { backgroundColor: COLORS.secondary }]} />
+              <Text style={[styles.metricLabel, { color: COLORS.secondary }]}>RECICLADO</Text>
+            </View>
+            <Text style={styles.metricValue}>850kg</Text>
+            <Text style={styles.metricSub}>Lixo eletrônico</Text>
+          </View>
+        </View>
+</ScrollView>
     </View>
-      </View>
+            
     );   
    
     
