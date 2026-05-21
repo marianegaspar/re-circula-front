@@ -1,7 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link } from 'expo-router';
+import { Link } from "expo-router";
 import React, { useState } from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useAppFonts } from "../hooks/use-App-Fonts";
 import { styles } from "./register-styles";
@@ -29,20 +35,20 @@ export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 export default function Register() {
-    const [showPassword, setShowPassword] = useState(false);
-      const { fontsLoaded } = useAppFonts();
-    
-      if (!fontsLoaded) {
-        return null; // O App fica travado na Splash Screen até as fontes estarem prontas
-      }
-    
-    return(
+  const [showPassword, setShowPassword] = useState(false);
+  const { fontsLoaded } = useAppFonts();
+
+  if (!fontsLoaded) {
+    return null; // O App fica travado na Splash Screen até as fontes estarem prontas
+  }
+
+  return (
     <View style={styles.container}>
-
-
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
-        {/* Header */}  
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.logoText}>Recircula</Text>
           <View style={styles.titleContainer}>
@@ -50,7 +56,8 @@ export default function Register() {
               Alimente o <Text style={{ color: COLORS.primary }}>Fluxo</Text>.
             </Text>
             <Text style={styles.heroSubtitle}>
-              Junte-se à maior rede de economia circular tecnológica e transforme resíduos em impacto real.
+              Junte-se à maior rede de economia circular tecnológica e
+              transforme resíduos em impacto real.
             </Text>
           </View>
         </View>
@@ -59,28 +66,30 @@ export default function Register() {
         <View style={styles.card}>
           <View style={styles.header}>
             <Text style={styles.cardTitle}>Criar conta</Text>
-            <Text style={styles.cardSubtitle}>Comece sua jornada sustentável hoje.</Text>
+            <Text style={styles.cardSubtitle}>
+              Comece sua jornada sustentável hoje.
+            </Text>
           </View>
 
           <View style={styles.form}>
             {/* Nome Completo */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>NOME COMPLETO</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="Ex: João Silva" 
-                placeholderTextColor={COLORS.outline + '80'}
+              <TextInput
+                style={styles.input}
+                placeholder="Ex: João Silva"
+                placeholderTextColor={COLORS.outline + "80"}
               />
             </View>
 
             {/* Email */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>E-MAIL</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="nome@email.com" 
+              <TextInput
+                style={styles.input}
+                placeholder="nome@email.com"
                 keyboardType="email-address"
-                placeholderTextColor={COLORS.outline + '80'}
+                placeholderTextColor={COLORS.outline + "80"}
               />
             </View>
 
@@ -88,17 +97,19 @@ export default function Register() {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>SENHA</Text>
               <View style={styles.passwordWrapper}>
-                <TextInput 
-                  style={styles.inputPassword} 
-                  placeholder="••••••••" 
+                <TextInput
+                  style={styles.inputPassword}
+                  placeholder="••••••••"
                   secureTextEntry={!showPassword}
-                  placeholderTextColor={COLORS.outline + '80'}
+                  placeholderTextColor={COLORS.outline + "80"}
                 />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                  <MaterialIcons 
-                    name={showPassword ? "visibility" : "visibility-off"} 
-                    size={20} 
-                    color={COLORS.outline} 
+                <TouchableOpacity
+                  onPress={() => setShowPassword(!showPassword)}
+                >
+                  <MaterialIcons
+                    name={showPassword ? "visibility" : "visibility-off"}
+                    size={20}
+                    color={COLORS.outline}
                   />
                 </TouchableOpacity>
               </View>
@@ -107,20 +118,18 @@ export default function Register() {
             {/* Confirmar Senha */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>CONFIRMAR SENHA</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="••••••••" 
+              <TextInput
+                style={styles.input}
+                placeholder="••••••••"
                 secureTextEntry={!showPassword}
-                placeholderTextColor={COLORS.outline + '80'}
+                placeholderTextColor={COLORS.outline + "80"}
               />
             </View>
 
-            <Link href ="/home" asChild>
-            <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8}>
-             
-              <Text style={styles.btnPrimaryText}>Criar conta</Text>
-          
-            </TouchableOpacity> 
+            <Link href="/home" asChild>
+              <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8}>
+                <Text style={styles.btnPrimaryText}>Criar conta</Text>
+              </TouchableOpacity>
             </Link>
 
             <View style={styles.dividerContainer}>
@@ -147,28 +156,43 @@ export default function Register() {
 
         {/* Metrics Section */}
         <View style={styles.metricsGrid}>
-          <View style={[styles.metricCard, styles.leafLeft, { borderLeftColor: COLORS.primaryContainer }]}>
+          <View
+            style={[
+              styles.metricCard,
+              styles.leafLeft,
+              { borderLeftColor: COLORS.primaryContainer },
+            ]}
+          >
             <View style={styles.metricHeader}>
               <View style={[styles.dot, { backgroundColor: COLORS.primary }]} />
-              <Text style={[styles.metricLabel, { color: COLORS.primary }]}>REDUZIDO</Text>
+              <Text style={[styles.metricLabel, { color: COLORS.primary }]}>
+                REDUZIDO
+              </Text>
             </View>
             <Text style={styles.metricValue}>14.2t</Text>
             <Text style={styles.metricSub}>CO2 evitados</Text>
           </View>
 
-          <View style={[styles.metricCard, styles.leafRight, { borderLeftColor: COLORS.secondary }]}>
+          <View
+            style={[
+              styles.metricCard,
+              styles.leafRight,
+              { borderLeftColor: COLORS.secondary },
+            ]}
+          >
             <View style={styles.metricHeader}>
-              <View style={[styles.dot, { backgroundColor: COLORS.secondary }]} />
-              <Text style={[styles.metricLabel, { color: COLORS.secondary }]}>RECICLADO</Text>
+              <View
+                style={[styles.dot, { backgroundColor: COLORS.secondary }]}
+              />
+              <Text style={[styles.metricLabel, { color: COLORS.secondary }]}>
+                RECICLADO
+              </Text>
             </View>
             <Text style={styles.metricValue}>850kg</Text>
             <Text style={styles.metricSub}>Lixo eletrônico</Text>
           </View>
         </View>
-</ScrollView>
+      </ScrollView>
     </View>
-            
-    );   
-   
-    
-}   
+  );
+}
