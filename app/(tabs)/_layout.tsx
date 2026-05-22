@@ -1,13 +1,21 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import React from "react";
+import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { COLORS } from "../themes";
 
 export default function TabLayout() {
+  const { fontsLoaded } = useAppFonts();
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+    
 
         //cor do icone ativo
         tabBarActiveTintColor: COLORS.primary,
@@ -18,20 +26,22 @@ export default function TabLayout() {
         //fundo da barra
         tabBarStyle: {
           backgroundColor: COLORS.surfaceContainer,
+          paddingBottom: 6,
+          height: 64,
+        },
+        tabBarLabelStyle: {
+          fontFamily: "Manrope-Regular",
+          lineHeight: 18,
+          paddingBottom: 2,
         },
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
-
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "home" : "home-outline"}
-              size={24}
-              color={color}
-            />
+          title: "HOME",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="home" size={24} color={color} />
           ),
         }}
       />
@@ -39,14 +49,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="colect"
         options={{
-          title: "Coleta",
+          title: "COLETA",
 
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "leaf" : "leaf-outline"}
-              size={24}
-              color={color}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="recycling" size={24} color={color} />
           ),
         }}
       />
@@ -54,14 +60,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Perfil",
+          title: "PERFIL",
 
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? "person" : "person-outline"}
-              size={24}
-              color={color}
-            />
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="person" size={24} color={color} />
           ),
         }}
       />
