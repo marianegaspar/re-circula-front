@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -59,6 +60,7 @@ const CATEGORIAS: Categoria[] = [
 export default function ColectScreen() {
   const { fontsLoaded } = useAppFonts();
   const router = useRouter();
+  const tabBarHeight = useBottomTabBarHeight();
   const [categoriaSelecionada, setCategoriaSelecionada] =
     useState<CategoriaId | null>(null);
   const [quantidade, setQuantidade] = useState<number>(0);
@@ -192,7 +194,10 @@ export default function ColectScreen() {
 
       {/* Conteúdo Rolável */}
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: tabBarHeight + 32 },
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Step Indicator */}
@@ -339,12 +344,29 @@ export default function ColectScreen() {
         <View style={styles.footerActionContainer}>
 
 
-            {showError && (
-              <Text style={styles.errorText}>
-                Selecione pelo menos um item para continuar.
-              </Text>
-            )}
+          {showError && (
+  <View style={styles.errorContainer}>
+    <MaterialIcons
+      name="warning"
+      size={20}
+      color="#FF9800"
+    />
 
+    <Text style={styles.errorMessage}>
+      Selecione pelo menos um item para continuar.
+    </Text>
+
+    <TouchableOpacity
+      onPress={() => setShowError(false)}
+    >
+      <MaterialIcons
+        name="close"
+        size={20}
+        color="#666"
+      />
+    </TouchableOpacity>
+  </View>
+)}
 
           <TouchableOpacity
             style={styles.btnPrincipal}
@@ -371,6 +393,12 @@ export default function ColectScreen() {
                 // Verifica se não há itens
                 if (selectedItems.length === 0) {
                   setShowError(true);
+
+                  setTimeout(() => {
+                    setShowError(false);
+                  }, 3000);
+        
+
                   return;
                  
                 }
@@ -436,7 +464,9 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
-  scrollContent: {},
+  scrollContent: {
+    flexGrow: 1,
+  },
 
   header: {
     flexDirection: "row",
@@ -904,10 +934,22 @@ const styles = StyleSheet.create({
   qtyTextPlus: { color: COLORS.onPrimary },
   qtyNumber: { color: COLORS.onSurface, minWidth: 20, textAlign: "center" },
 
-  errorText: {
-  color: "#FF4D4F",
-  textAlign: "center",
+errorContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#FFF4E5",
+  borderWidth: 1,
+  borderColor: "#FFCC80",
+  paddingVertical: 12,
+  paddingHorizontal: 14,
+  borderRadius: 12,
   marginBottom: 12,
+},
+
+errorMessage: {
+  flex: 1,
+  marginHorizontal: 10,
+  color: "#5D4037",
   fontSize: 14,
   fontWeight: "500",
 },

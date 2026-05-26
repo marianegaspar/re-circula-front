@@ -3,16 +3,22 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
+  Dimensions,
   FlatList,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+	View,
 } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { COLORS } from "../themes";
+
+const { width: screenWidth } = Dimensions.get("window");
+const TIME_BUTTON_GAP = 8;
+const TIME_BUTTON_WIDTH = (screenWidth - 40 - TIME_BUTTON_GAP * 3) / 4;
+
 type SelectedItem = {
   id: string;
   label: string;
@@ -138,11 +144,20 @@ export default function ColectSchedule() {
             <Text style={styles.stepLabel}>Confirma</Text>
           </View>
         </View>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.8}>
 
-        <Text style={styles.title}>Agendar Coleta</Text>
-        <Text style={styles.subtitle}>
-          Escolha a data e horário para sua coleta.
-        </Text>
+          <View style={styles.containerHeader}>
+            <MaterialIcons
+              name="arrow-back"
+              size={22}
+              color={COLORS.onSurface}
+            />
+            <Text style={styles.title}>Agendar Coleta</Text>
+          </View>
+          <Text style={styles.subtitle}>
+            Escolha a data e horário para sua coleta.
+          </Text>
+        </TouchableOpacity>
 
         <View style={styles.section}>
           <Calendar
@@ -239,6 +254,12 @@ const styles = StyleSheet.create({
   },
   scrollContent: {},
 
+  containerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -323,13 +344,13 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: "#dae2fd",
     lineHeight: 40,
-    marginBottom: 12,
   },
   subtitle: {
     fontFamily: "Manrope-Regular",
     fontSize: 15,
     color: "#bbcabf",
     lineHeight: 22,
+    marginTop: 12,
     marginBottom: 32,
   },
   section: {
@@ -370,15 +391,15 @@ const styles = StyleSheet.create({
   timesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    gap: TIME_BUTTON_GAP,
   },
   timeButton: {
-    width: "48%",
+    width: TIME_BUTTON_WIDTH,
     paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingHorizontal: 8,
     borderRadius: 12,
     backgroundColor: "#111827",
-    marginBottom: 10,
+    marginBottom: 2,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.04)",
     justifyContent: "center",
