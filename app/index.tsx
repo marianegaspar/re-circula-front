@@ -34,6 +34,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const { fontsLoaded } = useAppFonts();
 
   if (!fontsLoaded) {
@@ -41,6 +42,17 @@ export default function Login() {
   }
 
   function entrar() {
+    const nextErrors = {
+      email: email.trim() ? "" : "Preencha este campo.",
+      password: password.trim() ? "" : "Preencha este campo.",
+    };
+
+    setErrors(nextErrors);
+
+    if (nextErrors.email || nextErrors.password) {
+      return;
+    }
+
     router.replace("/home");
   }
 
@@ -63,7 +75,12 @@ export default function Login() {
           <View style={style.form}>
             {/* Email */}
             <Text style={style.label}>E-MAIL</Text>
-            <View style={style.inputContainer}>
+            <View
+              style={[
+                style.inputContainer,
+                errors.email ? style.inputError : null,
+              ]}
+            >
               <MaterialIcons
                 name="mail-outline"
                 size={20}
@@ -75,11 +92,19 @@ export default function Login() {
                 placeholder="seu@email.com"
                 placeholderTextColor={COLORS.outline + "70"}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  if (errors.email) {
+                    setErrors((current) => ({ ...current, email: "" }));
+                  }
+                }}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
             </View>
+            {errors.email ? (
+              <Text style={style.errorText}>{errors.email}</Text>
+            ) : null}
           </View>
           {/* Password */}
           <View style={style.labelRow}>
@@ -88,8 +113,13 @@ export default function Login() {
               <Text style={style.forgotPassword}>ESQUECI MINHA SENHA</Text>
             </TouchableOpacity>
           </View>
-          <div style={{ height: 8 }} />
-          <View style={style.inputContainer}>
+          <View style={{ height: 8 }} />
+          <View
+            style={[
+              style.inputContainer,
+              errors.password ? style.inputError : null,
+            ]}
+          >
             <MaterialIcons
               name="lock-outline"
               size={20}
@@ -101,7 +131,12 @@ export default function Login() {
               placeholder="••••••••"
               placeholderTextColor={COLORS.outline + "70"}
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(value) => {
+                setPassword(value);
+                if (errors.password) {
+                  setErrors((current) => ({ ...current, password: "" }));
+                }
+              }}
               secureTextEntry={!showPassword}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
@@ -112,9 +147,12 @@ export default function Login() {
               />
             </TouchableOpacity>
           </View>
+          {errors.password ? (
+            <Text style={style.errorText}>{errors.password}</Text>
+          ) : null}
 
           {/* Submit Button */}
-          <TouchableOpacity activeOpacity={0.8}>
+          <TouchableOpacity activeOpacity={0.8} onPress={entrar}>
             <LinearGradient
               colors={[COLORS.primary, COLORS.primaryContainer]}
               start={{ x: 0, y: 0 }}
@@ -131,7 +169,6 @@ export default function Login() {
           <Text style={style.dividerText}>OU</Text>
           <View style={style.dividerLine} />
         </View>
-        ``
         {/* Social Login */}
         <View style={style.socialGrid}>
           <TouchableOpacity style={style.socialButton} activeOpacity={0.7}>

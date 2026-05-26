@@ -108,6 +108,9 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.outline + "20",
   },
+  inputError: {
+    borderColor: "#FF7A7A",
+  },
   passwordWrapper: {
     flexDirection: "row",
     alignItems: "center",
@@ -121,6 +124,12 @@ export const styles = StyleSheet.create({
     flex: 1,
     height: 56,
     color: COLORS.onSurface,
+  },
+  errorText: {
+    color: "#FF7A7A",
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
   btnPrimary: {
     backgroundColor: COLORS.primary,

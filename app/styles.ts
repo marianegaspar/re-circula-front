@@ -90,6 +90,10 @@ export const style = StyleSheet.create({
     paddingHorizontal: 16,
     height: 56,
   },
+  inputError: {
+    borderWidth: 1,
+    borderColor: "#FF7A7A",
+  },
   inputIcon: {
     marginRight: 12,
   },
@@ -97,6 +101,12 @@ export const style = StyleSheet.create({
     flex: 1,
     color: COLORS.onSurface,
     fontSize: 16,
+  },
+  errorText: {
+    color: "#FF7A7A",
+    fontSize: 12,
+    marginTop: 6,
+    marginLeft: 4,
   },
   submitButton: {
     height: 56,

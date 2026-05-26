@@ -3,12 +3,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-  Dimensions,
-  FlatList,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
+	Dimensions,
+	FlatList,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
 	View,
 } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
@@ -174,6 +174,8 @@ export default function ColectSchedule() {
               monthTextColor: COLORS.onSurface,
               arrowColor: COLORS.primary,
               textDisabledColor: COLORS.outline,
+			selectedDayBackgroundColor:"#a7c3b8",
+			selectedDayTextColor: "#003824",
             }}
             style={{ borderRadius: 12 }}
           />

@@ -1,5 +1,5 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -35,11 +35,47 @@ export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
 );
 
 export default function Register() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const { fontsLoaded } = useAppFonts();
 
   if (!fontsLoaded) {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
+  }
+
+  function handleRegister() {
+    const nextErrors = {
+      fullName: fullName.trim() ? "" : "Preencha este campo.",
+      email: email.trim() ? "" : "Preencha este campo.",
+      password: password.trim() ? "" : "Preencha este campo.",
+      confirmPassword: confirmPassword.trim()
+        ? confirmPassword.trim() !== password.trim()
+          ? "As senhas precisam ser iguais."
+          : ""
+        : "Preencha este campo.",
+    };
+
+    setErrors(nextErrors);
+
+    if (
+      nextErrors.fullName ||
+      nextErrors.email ||
+      nextErrors.password ||
+      nextErrors.confirmPassword
+    ) {
+      return;
+    }
+
+    router.replace("/home");
   }
 
   return (
@@ -76,32 +112,70 @@ export default function Register() {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>NOME COMPLETO</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errors.fullName ? styles.inputError : null]}
                 placeholder="Ex: João Silva"
                 placeholderTextColor={COLORS.outline + "80"}
+                value={fullName}
+                onChangeText={(value) => {
+                  setFullName(value);
+                  if (errors.fullName) {
+                    setErrors((current) => ({ ...current, fullName: "" }));
+                  }
+                }}
               />
+              {errors.fullName ? (
+                <Text style={styles.errorText}>{errors.fullName}</Text>
+              ) : null}
             </View>
 
             {/* Email */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>E-MAIL</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input, errors.email ? styles.inputError : null]}
                 placeholder="nome@email.com"
                 keyboardType="email-address"
                 placeholderTextColor={COLORS.outline + "80"}
+                autoCapitalize="none"
+                value={email}
+                onChangeText={(value) => {
+                  setEmail(value);
+                  if (errors.email) {
+                    setErrors((current) => ({ ...current, email: "" }));
+                  }
+                }}
               />
+              {errors.email ? (
+                <Text style={styles.errorText}>{errors.email}</Text>
+              ) : null}
             </View>
 
             {/* Senha */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>SENHA</Text>
-              <View style={styles.passwordWrapper}>
+              <View
+                style={[
+                  styles.passwordWrapper,
+                  errors.password ? styles.inputError : null,
+                ]}
+              >
                 <TextInput
                   style={styles.inputPassword}
                   placeholder="••••••••"
                   secureTextEntry={!showPassword}
                   placeholderTextColor={COLORS.outline + "80"}
+                  value={password}
+                  onChangeText={(value) => {
+                    setPassword(value);
+                    setErrors((current) => ({
+                      ...current,
+                      password: "",
+                      confirmPassword:
+                        confirmPassword.trim() && value.trim() !== confirmPassword.trim()
+                          ? "As senhas precisam ser iguais."
+                          : "",
+                    }));
+                  }}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
@@ -113,24 +187,46 @@ export default function Register() {
                   />
                 </TouchableOpacity>
               </View>
+              {errors.password ? (
+                <Text style={styles.errorText}>{errors.password}</Text>
+              ) : null}
             </View>
 
             {/* Confirmar Senha */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>CONFIRMAR SENHA</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  errors.confirmPassword ? styles.inputError : null,
+                ]}
                 placeholder="••••••••"
                 secureTextEntry={!showPassword}
                 placeholderTextColor={COLORS.outline + "80"}
+                value={confirmPassword}
+                onChangeText={(value) => {
+                  setConfirmPassword(value);
+                  setErrors((current) => ({
+                    ...current,
+                    confirmPassword:
+                      value.trim() && password.trim() !== value.trim()
+                        ? "As senhas precisam ser iguais."
+                        : "",
+                  }));
+                }}
               />
+              {errors.confirmPassword ? (
+                <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+              ) : null}
             </View>
 
-            <Link href="/home" asChild>
-              <TouchableOpacity style={styles.btnPrimary} activeOpacity={0.8}>
-                <Text style={styles.btnPrimaryText}>Criar conta</Text>
-              </TouchableOpacity>
-            </Link>
+            <TouchableOpacity
+              style={styles.btnPrimary}
+              activeOpacity={0.8}
+              onPress={handleRegister}
+            >
+              <Text style={styles.btnPrimaryText}>Criar conta</Text>
+            </TouchableOpacity>
 
             <View style={styles.dividerContainer}>
               <View style={styles.line} />
@@ -145,7 +241,7 @@ export default function Register() {
 
             <View style={styles.footerLink}>
               <Text style={styles.footerText}>Já tem uma conta? </Text>
-              <Link href="/home" asChild>
+              <Link href="/" asChild>
                 <TouchableOpacity>
                   <Text style={styles.signUpText}>Entrar</Text>
                 </TouchableOpacity>
