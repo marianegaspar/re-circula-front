@@ -12,10 +12,10 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { useAppFonts } from "../../hooks/use-App-Fonts";
-import CategoryModal from "../components/CategoryModal";
-import CollectModal from "../components/CollectModal";
-import { COLORS } from "../themes";
+import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import CategoryModal from "../../components/CategoryModal";
+import CollectModal from "../../components/CollectModal";
+import { COLORS } from "../../themes";
 
 const { width: screenWidth } = Dimensions.get("window");
 const cardWidth = (screenWidth - 40 - 12) / 2;
@@ -315,28 +315,40 @@ export default function ColectScreen() {
         </View>
 
         {totalAdded > 0 && (
-          <TouchableOpacity style={styles.summaryCard} activeOpacity={0.9}>
+          <TouchableOpacity
+            style={styles.summaryCard}
+            activeOpacity={0.9}
+            onPress={() =>
+              router.push({
+                pathname: "/colect/itens",
+                params: { selectedItems: JSON.stringify(collectionItems) },
+              })
+            }
+          >
             <View style={styles.summaryCardHeader}>
               <View style={styles.summaryCardCountWrapper}>
-                <MaterialIcons
-                  name="checklist"
-                  size={20}
-                  color={COLORS.primary}
-                />
-                <Text style={styles.summaryCardCount}>
-                  {totalAdded === 1
-                    ? "1 item adicionado"
-                    : `${totalAdded} itens adicionados`}
-                </Text>
+                <View style={styles.summaryCardIconBox}>
+                  <MaterialIcons
+                    name="inventory-2"
+                    size={22}
+                    color={COLORS.primary}
+                  />
+                </View>
+                <View>
+                  <Text style={styles.summaryCardCount}>
+                    {totalAdded === 1
+                      ? "1 item adicionado"
+                      : `${totalAdded} itens adicionados`}
+                  </Text>
+                  <Text style={styles.summaryCardAction}>Ver minha coleta</Text>
+                </View>
               </View>
               <MaterialIcons
-                name="arrow-forward-ios"
-                size={18}
+                name="keyboard-arrow-up"
+                size={22}
                 color={COLORS.primary}
               />
             </View>
-            <Text style={styles.summaryCardSubtitle}>coleta</Text>
-            <Text style={styles.summaryCardAction}>Ver minha coleta</Text>
           </TouchableOpacity>
         )}
 
@@ -407,7 +419,7 @@ export default function ColectScreen() {
                   setShowError(false);
 
               router.push({
-                pathname: "/colect-schedule",
+                pathname: "/colect/schedule",
                 params: { selectedItems: JSON.stringify(selectedItems) },
               });
             }}
@@ -448,7 +460,7 @@ export default function ColectScreen() {
         onContinue={() => {
           setCollectionModalVisible(false);
           router.push({
-            pathname: "/colect-schedule",
+            pathname: "/colect/schedule",
             params: { selectedItems: JSON.stringify(collectionItems) },
           });
         }}
@@ -653,42 +665,43 @@ const styles = StyleSheet.create({
     color: "#4edea3",
   },
   summaryCard: {
-    backgroundColor: "#111827",
-    borderRadius: 20,
+    backgroundColor: "rgba(17, 24, 39, 0.92)",
+    borderRadius: 18,
     borderWidth: 1,
     borderColor: "rgba(16, 185, 129, 0.18)",
-    padding: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     marginBottom: 24,
   },
   summaryCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
   },
   summaryCardCountWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 12,
+    flex: 1,
+  },
+  summaryCardIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: "rgba(78, 222, 163, 0.08)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   summaryCardCount: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#dae2fd",
-    marginBottom: 0,
-  },
-  summaryCardSubtitle: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#f87171",
-    textTransform: "uppercase",
-    letterSpacing: 1,
+    fontSize: 20,
+    fontWeight: "800",
+    color: "#F2F6FF",
   },
   summaryCardAction: {
     fontSize: 14,
-    color: COLORS.primary,
-    fontWeight: "700",
-    marginTop: 8,
+    color: COLORS.onSurfaceVariant,
+    fontWeight: "600",
+    marginTop: 2,
   },
 
   // Bento Quantity

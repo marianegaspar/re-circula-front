@@ -3,21 +3,15 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
-	Dimensions,
-	FlatList,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
-import { useAppFonts } from "../../hooks/use-App-Fonts";
-import { COLORS } from "../themes";
-
-const { width: screenWidth } = Dimensions.get("window");
-const TIME_BUTTON_GAP = 8;
-const TIME_BUTTON_WIDTH = (screenWidth - 40 - TIME_BUTTON_GAP * 3) / 4;
+import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { COLORS } from "../../themes";
 
 type SelectedItem = {
   id: string;
@@ -26,16 +20,10 @@ type SelectedItem = {
   category?: string;
 };
 
-const TIMES = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-];
+const TIME_PERIODS = [
+  { id: "manha", title: "Manhã", range: "08h às 12h" },
+  { id: "tarde", title: "Tarde", range: "12h às 18h" },
+] as const;
 
 LocaleConfig.locales["pt-br"] = {
   monthNames: [
@@ -95,6 +83,7 @@ export default function ColectSchedule() {
 
   const [date, setDate] = React.useState<string | null>(null);
   const [time, setTime] = React.useState<string | null>(null);
+  const [errors, setErrors] = React.useState({ date: "", time: "" });
 
   if (!fontsLoaded) return null;
 
@@ -161,7 +150,13 @@ export default function ColectSchedule() {
 
         <View style={styles.section}>
           <Calendar
-            onDayPress={(day) => setDate(day.dateString)}
+            hideExtraDays
+            onDayPress={(day) => {
+              setDate(day.dateString);
+              if (errors.date) {
+                setErrors((current) => ({ ...current, date: "" }));
+              }
+            }}
             markedDates={date ? { [date]: { selected: true } } : {}}
             theme={{
               todayBackgroundColor: COLORS.primary,
@@ -179,63 +174,83 @@ export default function ColectSchedule() {
             }}
             style={{ borderRadius: 12 }}
           />
+          {errors.date ? (
+            <Text style={styles.errorText}>{errors.date}</Text>
+          ) : null}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Horário</Text>
-          <View style={styles.timesContainer}>
-            {TIMES.map((t) => (
-              <TouchableOpacity
-                key={t}
-                style={[
-                  styles.timeButton,
-                  time === t ? styles.timeButtonActive : null,
-                ]}
-                onPress={() => setTime(t)}
-              >
-                <Text
-                  style={time === t ? styles.timeTextActive : styles.timeText}
+        {date ? (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Horário</Text>
+            <View style={styles.periodsContainer}>
+              {TIME_PERIODS.map((period) => (
+                <TouchableOpacity
+                  key={period.id}
+                  style={[
+                    styles.periodCard,
+                    time === period.id ? styles.periodCardActive : null,
+                  ]}
+                  onPress={() => {
+                    setTime(period.id);
+                    if (errors.time) {
+                      setErrors((current) => ({ ...current, time: "" }));
+                    }
+                  }}
                 >
-                  {t}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.periodTitle,
+                      time === period.id ? styles.periodTitleActive : null,
+                    ]}
+                  >
+                    {period.title}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.periodRange,
+                      time === period.id ? styles.periodRangeActive : null,
+                    ]}
+                  >
+                    {period.range}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {errors.time ? (
+              <Text style={styles.errorText}>{errors.time}</Text>
+            ) : null}
           </View>
-        </View>
+        ) : null}
 
-        {/* Itens Selecionados */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Itens selecionados</Text>
-          {selectedItems.length === 0 ? (
-            <Text style={styles.emptyText}>
-              Nenhum item enviado. Volte e selecione itens.
-            </Text>
-          ) : (
-            <FlatList
-              data={selectedItems}
-              keyExtractor={(i) => i.id}
-              renderItem={({ item }) => (
-                <View style={styles.itemRow}>
-                  <Text style={styles.itemText}>{item.label}</Text>
-                  <Text style={styles.itemQty}>{item.quantity} itens</Text>
-                </View>
-              )}
-            />
-          )}
-        </View>
 
         <View style={styles.footerActionContainer}>
           <TouchableOpacity
             style={styles.btnPrincipal}
             activeOpacity={0.9}
             onPress={() => {
+              const nextErrors = {
+                date: date ? "" : "Selecione uma data para continuar.",
+                time: time ? "" : "Selecione um horário para continuar.",
+              };
+
+              setErrors(nextErrors);
+
+              if (nextErrors.date || nextErrors.time) {
+                return;
+              }
+
               // enviar para confirmação com params
               router.push({
-                pathname: "/colect-confirmation",
+                pathname: "/colect/revision",
                 params: {
                   selectedItems: JSON.stringify(selectedItems),
                   date: date || "",
-                  time: time || "",
+                  time:
+                    time === "manha"
+                      ? "08h às 12h"
+                      : time === "tarde"
+                        ? "12h às 18h"
+                        : "",
                 },
               });
             }}
@@ -365,6 +380,13 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 14,
   },
+  errorText: {
+    color: "#FF7A7A",
+    fontSize: 12,
+    fontFamily: "Manrope-Regular",
+    marginTop: 10,
+    marginLeft: 4,
+  },
   emptyText: {
     color: COLORS.onSurfaceVariant,
     fontFamily: "Manrope-Regular",
@@ -390,36 +412,39 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope-Regular",
     fontSize: 13,
   },
-  timesContainer: {
+  periodsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: TIME_BUTTON_GAP,
+    gap: 12,
   },
-  timeButton: {
-    width: TIME_BUTTON_WIDTH,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 12,
+  periodCard: {
+    flex: 1,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    borderRadius: 16,
     backgroundColor: "#111827",
-    marginBottom: 2,
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.04)",
-    justifyContent: "center",
-    alignItems: "center",
   },
-  timeButtonActive: {
+  periodCardActive: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
-  timeText: {
+  periodTitle: {
     color: COLORS.onSurface,
     fontFamily: "Manrope-Bold",
-    fontSize: 14,
+    fontSize: 18,
   },
-  timeTextActive: {
+  periodTitleActive: {
     color: "#003824",
-    fontFamily: "Manrope-Bold",
+  },
+  periodRange: {
+    color: COLORS.onSurfaceVariant,
+    fontFamily: "Manrope-Regular",
     fontSize: 14,
+    marginTop: 4,
+  },
+  periodRangeActive: {
+    color: "#0b4c38",
   },
   footerActionContainer: {
     marginTop: 32,
