@@ -1,6 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -13,17 +13,12 @@ import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { COLORS } from "../themes";
 
 export default function HomeScreen() {
+  const router = useRouter();
   const { fontsLoaded } = useAppFonts();
 
   if (!fontsLoaded) {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
   }
-
-  const MyTabs = createBottomTabNavigator({
-    screens: {
-      Home: HomeScreen,
-    },
-  });
 
   return (
     <ScrollView
@@ -34,7 +29,7 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.brand}>
-            <MaterialIcons name="eco" size={28} color={COLORS.primary} />
+            <MaterialIcons name="bolt" size={28} color={COLORS.primary} />
             <Text style={styles.logoText}> ReCircula </Text>
           </View>
           <TouchableOpacity>
@@ -99,8 +94,10 @@ export default function HomeScreen() {
         </View>
 
         {/* CTA COLETA */}
-
-        <TouchableOpacity style={styles.collectCardContent}>
+        <TouchableOpacity
+          style={styles.collectCardContent}
+          onPress={() => router.push("/colect")}
+        >
           <View style={{ flex: 1, flexDirection: "column" }}>
             <Text style={styles.labelTitle}>SOLICITAR COLETA</Text>
 

@@ -48,7 +48,7 @@ export default function Login() {
     <View style={style.container}>
       {/* Header */}
       <View style={style.header}>
-        <MaterialIcons name="eco" size={28} color={COLORS.primary} />
+        <MaterialIcons name="bolt" size={28} color={COLORS.primary} />
         <Text style={style.logoText}> ReCircula </Text>
       </View>
       {/* Login Card */}

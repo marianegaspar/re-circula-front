@@ -15,7 +15,6 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-    
 
         //cor do icone ativo
         tabBarActiveTintColor: COLORS.primary,
@@ -67,6 +66,8 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      
     </Tabs>
   );
 }
