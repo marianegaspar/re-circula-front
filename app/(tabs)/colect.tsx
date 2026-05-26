@@ -3,7 +3,6 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   Dimensions,
   Platform,
   ScrollView,
@@ -64,6 +63,8 @@ export default function ColectScreen() {
     useState<CategoriaId | null>(null);
   const [quantidade, setQuantidade] = useState<number>(0);
   const [activeModal, setActiveModal] = useState<CategoriaId | null>(null);
+  //criar estado de erro
+  const [showError, setShowError] = useState(false);
 
   //array unico
   const CATEGORY_ITEMS: Record<
@@ -336,6 +337,15 @@ export default function ColectScreen() {
 
         {/* Footer Action Button */}
         <View style={styles.footerActionContainer}>
+
+
+            {showError && (
+              <Text style={styles.errorText}>
+                Selecione pelo menos um item para continuar.
+              </Text>
+            )}
+
+
           <TouchableOpacity
             style={styles.btnPrincipal}
             activeOpacity={0.9}
@@ -360,13 +370,13 @@ export default function ColectScreen() {
 
                 // Verifica se não há itens
                 if (selectedItems.length === 0) {
-                  Alert.alert(
-                    "Nenhum item selecionado",
-                    "Selecione pelo menos um item para continuar."
-                  );
-
+                  setShowError(true);
                   return;
+                 
                 }
+
+                  // Esconde erro caso tenha itens
+                  setShowError(false);
 
               router.push({
                 pathname: "/colect-schedule",
@@ -893,4 +903,12 @@ const styles = StyleSheet.create({
   qtyText: { color: COLORS.onSurface, fontWeight: "700" },
   qtyTextPlus: { color: COLORS.onPrimary },
   qtyNumber: { color: COLORS.onSurface, minWidth: 20, textAlign: "center" },
+
+  errorText: {
+  color: "#FF4D4F",
+  textAlign: "center",
+  marginBottom: 12,
+  fontSize: 14,
+  fontWeight: "500",
+},
 });
