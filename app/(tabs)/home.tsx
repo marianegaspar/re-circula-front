@@ -42,10 +42,22 @@ export default function HomeScreen() {
         </View>
 
         {/* Welcome */}
-        <Text style={styles.title}>Olá, Mariane</Text>
-        <Text style={styles.subtitle}>
-          Seu impacto positivo hoje ajuda o amanhã.
-        </Text>
+        <TouchableOpacity
+          style={styles.profileHero}
+          activeOpacity={0.85}
+          onPress={() => router.push("/profile")}
+        >
+          <View style={styles.profileAvatar}>
+            <MaterialIcons name="person" size={26} color={COLORS.onPrimary} />
+          </View>
+
+          <View style={styles.profileHeroText}>
+            <Text style={styles.title}>Olá, Mariane</Text>
+            <Text style={styles.subtitle}>
+              Seu impacto positivo hoje ajuda o amanhã.
+            </Text>
+          </View>
+        </TouchableOpacity>
 
         {/* Bento Grid: Impacto */}
         <View style={styles.bentoGrid}>
@@ -111,6 +123,58 @@ export default function HomeScreen() {
             <MaterialIcons name="send" size={20} color={COLORS.onPrimary} />
           </View>
         </TouchableOpacity>
+
+        <View style={styles.requestsHeader}>
+          <Text style={styles.requestsTitle}>Minhas Solicitações</Text>
+          <TouchableOpacity>
+            <Text style={styles.requestsLink}>Ver histórico</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.requestsList}>
+          <TouchableOpacity style={styles.requestCard} activeOpacity={0.85}>
+            <View style={styles.requestCardLeft}>
+              <View style={styles.requestIconWrap}>
+                <MaterialIcons
+                  name="schedule"
+                  size={24}
+                  color={COLORS.primary}
+                />
+              </View>
+
+              <View style={styles.requestContent}>
+                <Text style={styles.requestTitle}>Resíduos Eletrônicos</Text>
+                <Text style={styles.requestSubtitle}>Agendado para 14 Out</Text>
+                <View style={styles.requestStatusPill}>
+                  <Text style={styles.requestStatusText}>EM PROCESSAMENTO</Text>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.requestCard} activeOpacity={0.85}>
+            <View style={styles.requestCardLeft}>
+              <View style={styles.requestIconWrap}>
+                <MaterialIcons
+                  name="check-circle"
+                  size={24}
+                  color={COLORS.primary}
+                />
+              </View>
+
+              <View style={styles.requestContent}>
+                <Text style={styles.requestTitle}>Baterias e Pilhas</Text>
+                <Text style={styles.requestSubtitle}>Concluído em 10 Out</Text>
+              </View>
+            </View>
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={COLORS.onSurfaceVariant}
+            />
+          </TouchableOpacity>
+        </View>
 
         {/* Pontos de Coleta */}
         <View style={{ marginTop: 24 }}>
@@ -212,6 +276,23 @@ const styles = StyleSheet.create({
     lineHeight: 16,
     marginBottom: 24,
   },
+  profileHero: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  profileAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.primaryContainer,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 24,
+  },
+  profileHeroText: {
+    flex: 1,
+  },
 
   bentoGrid: { gap: 16, marginBottom: 16 },
   mainImpactCard: {
@@ -291,6 +372,79 @@ const styles = StyleSheet.create({
     fontFamily: "Inter-Regular",
     marginTop: 8,
     lineHeight: 16,
+  },
+  requestsHeader: {
+    marginTop: 24,
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  requestsTitle: {
+    fontFamily: "Manrope-Bold",
+    fontSize: 20,
+    color: COLORS.onSurface,
+  },
+  requestsLink: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontFamily: "Manrope-Bold",
+  },
+  requestsList: {
+    gap: 16,
+  },
+  requestCard: {
+    backgroundColor: COLORS.surfaceContainer,
+    borderRadius: 20,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: COLORS.outline + "10",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  requestCardLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    flex: 1,
+    paddingRight: 12,
+  },
+  requestIconWrap: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "rgba(78, 222, 163, 0.08)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  requestContent: {
+    flex: 1,
+  },
+  requestTitle: {
+    color: COLORS.onSurface,
+    fontSize: 18,
+    fontFamily: "Manrope-Bold",
+    marginBottom: 4,
+  },
+  requestSubtitle: {
+    color: COLORS.onSurfaceVariant,
+    fontSize: 14,
+    lineHeight: 20,
+    fontFamily: "Manrope-Regular",
+    paddingBottom: 8,
+
+  },
+  requestStatusPill: {
+    backgroundColor: "rgba(16, 185, 129, 0.22)",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  requestStatusText: {
+    color: "#9AE6C2",
+    fontSize: 12,
+    fontFamily: "Manrope-Bold",
   },
 
   seeAll: {
