@@ -10,11 +10,14 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
+import { auth } from "../../src/services/firebase";
 import { COLORS } from "../themes";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { fontsLoaded } = useAppFonts();
+  const user = auth.currentUser;
+
 
   if (!fontsLoaded) {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
@@ -52,7 +55,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.profileHeroText}>
-            <Text style={styles.title}>Olá, Mariane</Text>
+            <Text style={styles.title}>Olá, {user?.displayName}</Text>
             <Text style={styles.subtitle}>
               Seu impacto positivo hoje ajuda o amanhã.
             </Text>

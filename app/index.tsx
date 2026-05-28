@@ -5,9 +5,13 @@ import Svg, { Path } from "react-native-svg";
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { useAppFonts } from "../hooks/use-App-Fonts";
+import { auth } from "../src/services/firebase";
 import { style } from "./styles";
 import { COLORS } from "./themes";
+
+
 
 export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 48 48">
@@ -41,20 +45,43 @@ export default function Login() {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
   }
 
-  function entrar() {
-    const nextErrors = {
-      email: email.trim() ? "" : "Preencha este campo.",
-      password: password.trim() ? "" : "Preencha este campo.",
-    };
 
-    setErrors(nextErrors);
+async function entrar() {
 
-    if (nextErrors.email || nextErrors.password) {
-      return;
-    }
+  const nextErrors = {
+    email: email.trim() ? "" : "Preencha este campo.",
+    password: password.trim()
+      ? ""
+      : "Preencha este campo.",
+  };
+
+  setErrors(nextErrors);
+
+  // Se houver erro, para aqui
+  if (nextErrors.email || nextErrors.password) {
+    return;
+  }
+
+  try {
+
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     router.replace("/home");
+
+  } catch (error) {
+
+    setErrors({
+      email: "",
+      password: "Email ou senha inválidos.",
+    });
+
   }
+}
+
 
   return (
     <View style={style.container}>

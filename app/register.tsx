@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -10,8 +11,10 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useAppFonts } from "../hooks/use-App-Fonts";
+import { auth } from "../src/services/firebase";
 import { styles } from "./register-styles";
 import { COLORS } from "./themes";
+
 
 export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 48 48">
@@ -52,32 +55,95 @@ export default function Register() {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
   }
 
-  function handleRegister() {
-    const nextErrors = {
-      fullName: fullName.trim() ? "" : "Preencha este campo.",
-      email: email.trim() ? "" : "Preencha este campo.",
-      password: password.trim() ? "" : "Preencha este campo.",
-      confirmPassword: confirmPassword.trim()
-        ? confirmPassword.trim() !== password.trim()
-          ? "As senhas precisam ser iguais."
-          : ""
-        : "Preencha este campo.",
-    };
+async function handleRegister() {
 
-    setErrors(nextErrors);
+  const nextErrors = {
+    fullName: fullName.trim()
+      ? ""
+      : "Preencha este campo.",
 
-    if (
-      nextErrors.fullName ||
-      nextErrors.email ||
-      nextErrors.password ||
-      nextErrors.confirmPassword
-    ) {
+    email: email.trim()
+      ? ""
+      : "Preencha este campo.",
+
+    password: password.trim()
+      ? ""
+      : "Preencha este campo.",
+
+    confirmPassword: confirmPassword.trim()
+      ? confirmPassword.trim() !== password.trim()
+        ? "As senhas precisam ser iguais."
+        : ""
+      : "Preencha este campo.",
+  };
+
+  setErrors(nextErrors);
+
+  // Se houver erros, para aqui
+  if (
+    nextErrors.fullName ||
+    nextErrors.email ||
+    nextErrors.password ||
+    nextErrors.confirmPassword
+  ) {
+    return;
+  }
+
+  try {
+
+const userCredential =
+  await createUserWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+
+  await updateProfile(
+  userCredential.user,
+  {
+    displayName: fullName,
+  }
+);
+
+    router.replace("/home");
+
+  } catch (error: any) {
+
+    if (error.code === "auth/email-already-in-use") {
+
+      setErrors({
+        ...nextErrors,
+        email: "Este email já está em uso.",
+      });
+
       return;
     }
 
-    router.replace("/home");
-  }
+    if (error.code === "auth/invalid-email") {
 
+      setErrors({
+        ...nextErrors,
+        email: "Email inválido.",
+      });
+
+      return;
+    }
+
+    if (error.code === "auth/weak-password") {
+
+      setErrors({
+        ...nextErrors,
+        password: "A senha precisa ter pelo menos 6 caracteres.",
+      });
+
+      return;
+    }
+
+    console.log(error);
+
+    
+  }
+}
   return (
     <View style={styles.container}>
       <ScrollView
