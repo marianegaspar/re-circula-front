@@ -1,6 +1,10 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import {
+  doc,
+  setDoc
+} from "firebase/firestore";
 import React, { useState } from "react";
 import {
   ScrollView,
@@ -11,9 +15,11 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useAppFonts } from "../hooks/use-App-Fonts";
-import { auth } from "../src/services/firebase";
+import { auth, db } from "../src/services/firebase";
 import { styles } from "./register-styles";
 import { COLORS } from "./themes";
+
+
 
 
 export const GoogleIcon = ({ size = 20 }: { size?: number }) => (
@@ -91,6 +97,8 @@ async function handleRegister() {
 
   try {
 
+      console.log("CRIANDO USUARIO");
+
 const userCredential =
   await createUserWithEmailAndPassword(
     auth,
@@ -98,12 +106,28 @@ const userCredential =
     password
   );
 
+    console.log("USUARIO AUTH CRIADO");
+
   await updateProfile(
   userCredential.user,
   {
     displayName: fullName,
   }
 );
+
+  console.log("SALVANDO FIRESTORE");
+
+
+//cria o documento do usuário no Firestore
+await setDoc(
+  doc(db, "users", userCredential.user.uid),
+  {
+    fullName,
+    email,
+    createdAt: new Date(),
+  }
+);
+  console.log("FIRESTORE SALVO");
 
     router.replace("/home");
 
