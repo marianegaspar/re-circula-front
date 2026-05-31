@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import React from "react";
 import {
   ScrollView,
@@ -10,13 +11,45 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
-import { auth } from "../../src/services/firebase";
+import { auth, db } from "../../src/services/firebase";
 import { COLORS } from "../themes";
 
 export default function HomeScreen() {
   const router = useRouter();
   const { fontsLoaded } = useAppFonts();
   const user = auth.currentUser;
+  const [schedules, setSchedules] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+  async function loadSchedules() {
+    if (!user) return;
+
+    const q = query(
+      collection(db, "schedules"),
+      where("userId", "==", user.uid)
+    );
+
+    const snapshot = await getDocs(q);
+
+    const data = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      
+    }));
+
+    setSchedules(data);
+  }
+
+  loadSchedules();
+}, []);
+
+function formatDate(dateString: string) {
+  if (!dateString) return "";
+
+  const [year, month, day] = dateString.split("-");
+
+  return `${day}/${month}`;
+}
 
 
   if (!fontsLoaded) {
@@ -135,48 +168,49 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.requestsList}>
-          <TouchableOpacity style={styles.requestCard} activeOpacity={0.85}>
-            <View style={styles.requestCardLeft}>
-              <View style={styles.requestIconWrap}>
-                <MaterialIcons
-                  name="schedule"
-                  size={24}
-                  color={COLORS.primary}
-                />
-              </View>
+          
+       {schedules.map((schedule) => (
+  <TouchableOpacity
+    key={schedule.id}
+    style={styles.requestCard}
+    activeOpacity={0.85}
+  >
+    <View style={styles.requestCardLeft}>
+      <View style={styles.requestIconWrap}>
+        <MaterialIcons
+          name={
+            schedule.status === "pending"
+              ? "schedule"
+              : "check-circle"
+          }
+          size={24}
+          color={COLORS.primary}
+        />
+      </View>
 
-              <View style={styles.requestContent}>
-                <Text style={styles.requestTitle}>Resíduos Eletrônicos</Text>
-                <Text style={styles.requestSubtitle}>Agendado para 14 Out</Text>
-                <View style={styles.requestStatusPill}>
-                  <Text style={styles.requestStatusText}>EM PROCESSAMENTO</Text>
-                </View>
-              </View>
-            </View>
-          </TouchableOpacity>
+      <View style={styles.requestContent}>
+    <Text style={styles.requestTitle}>
+  {schedule.items?.length > 1
+    ? `${schedule.items.length} itens para coleta`
+    : schedule.items?.[0]?.label || "Coleta"}
+</Text>
 
-          <TouchableOpacity style={styles.requestCard} activeOpacity={0.85}>
-            <View style={styles.requestCardLeft}>
-              <View style={styles.requestIconWrap}>
-                <MaterialIcons
-                  name="check-circle"
-                  size={24}
-                  color={COLORS.primary}
-                />
-              </View>
+        <Text style={styles.requestSubtitle}>
+          Coleta agendada para {formatDate(schedule.date)} às {schedule.time}
+        </Text>
 
-              <View style={styles.requestContent}>
-                <Text style={styles.requestTitle}>Baterias e Pilhas</Text>
-                <Text style={styles.requestSubtitle}>Concluído em 10 Out</Text>
-              </View>
-            </View>
-
-            <Ionicons
-              name="chevron-forward"
-              size={20}
-              color={COLORS.onSurfaceVariant}
-            />
-          </TouchableOpacity>
+        <View style={styles.requestStatusPill}>
+          <Text style={styles.requestStatusText}>
+            {schedule.status === "pending"
+              ? "EM PROCESSAMENTO"
+              : "CONCLUÍDO"}
+          </Text>
+        </View>
+      </View>
+    </View>
+  </TouchableOpacity>
+))}
+       
         </View>
 
         {/* Pontos de Coleta */}

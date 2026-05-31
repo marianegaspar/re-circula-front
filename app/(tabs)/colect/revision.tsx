@@ -3,6 +3,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { addDoc, collection } from "firebase/firestore";
 import React from "react";
 import {
   ScrollView,
@@ -12,7 +13,9 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { auth, db } from "../../../src/services/firebase";
 import { COLORS } from "../../themes";
+
 
 type CollectionItem = {
   id: string;
@@ -94,6 +97,60 @@ export default function ColectRevision() {
   const ecoPoints = totalItems * 112 + 2;
 
   if (!fontsLoaded) return null;
+
+async function handleConfirmCollection() {
+
+  try {
+
+    const user = auth.currentUser;
+
+
+  console.log("USER:", user);
+  console.log("ITEMS:", collectionItems);
+  console.log("PARAMS:", params);
+
+    if (!user) {
+      return;
+    }
+
+    await addDoc(
+      collection(db, "schedules"),
+      {
+        userId: user.uid,
+        userName: user.displayName || "",
+        userEmail: user.email || "",
+
+        items: collectionItems,
+
+        date: params.date || "",
+        time: params.time || "",
+
+        totalItems,
+        ecoPoints,
+        impactKg,
+
+        status: "pending",
+
+        createdAt: new Date(),
+      }
+    );
+
+    // AQUI ELE NAVEGA
+    router.push({
+      pathname: "/colect/confirmation",
+      params: {
+        selectedItems: JSON.stringify(collectionItems),
+        date: params.date || "",
+        time: params.time || "",
+      },
+    });
+
+  } catch (error) {
+
+    console.log("ERRO AO SALVAR:", error);
+
+  }
+}
 
   return (
     <ScrollView
@@ -240,18 +297,13 @@ export default function ColectRevision() {
 
 
         <TouchableOpacity
-          style={styles.confirmButton}
+        
+    style={styles.confirmButton}
           activeOpacity={0.9}
-          onPress={() =>
-            router.push({
-              pathname: "/colect/confirmation",
-              params: {
-                selectedItems: JSON.stringify(collectionItems),
-                date: params.date || "",
-                time: params.time || "",
-              },
-            })
+          onPress={() => handleConfirmCollection()    
+            
           }
+  
         >
           <Text style={styles.confirmButtonText}>Confirmar Coleta</Text>
           <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />

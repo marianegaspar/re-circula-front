@@ -81,9 +81,16 @@ export default function ColectSchedule() {
     }
   }, [params.selectedItems]);
 
-  const [date, setDate] = React.useState<string | null>(null);
+  const today = new Date().toISOString().split("T")[0];
+
+const [date, setDate] = React.useState<string | null>(today);
   const [time, setTime] = React.useState<string | null>(null);
   const [errors, setErrors] = React.useState({ date: "", time: "" });
+
+  const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1);
+
+const minDate = tomorrow.toISOString().split("T")[0];
 
   if (!fontsLoaded) return null;
 
@@ -150,6 +157,7 @@ export default function ColectSchedule() {
 
         <View style={styles.section}>
           <Calendar
+            minDate={minDate}
             hideExtraDays
             onDayPress={(day) => {
               setDate(day.dateString);

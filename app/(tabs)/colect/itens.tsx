@@ -474,10 +474,11 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
   stepLabel: {
-    color: COLORS.onSurfaceVariant,
-    fontSize: 11,
-    fontWeight: "800",
-    textAlign: "center",
+    fontSize: 10,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    color: "#bbcabf",
   },
   stepLabelActive: {
     color: COLORS.primary,
