@@ -1,6 +1,5 @@
 import {
-  MaterialCommunityIcons,
-  MaterialIcons,
+  MaterialIcons
 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
@@ -49,8 +48,12 @@ export default function CollectConfirmation() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     selectedItems?: string;
+    deliveryType?: string;
     date?: string;
     time?: string;
+    pointName?: string;
+    pointAddress?: string;
+    pointHours?: string;
   }>();
   const { fontsLoaded } = useAppFonts();
 
@@ -64,6 +67,7 @@ export default function CollectConfirmation() {
 
   const totalItems = collectionItems.reduce((sum, item) => sum + item.quantity, 0);
   const ecoPoints = totalItems * 112 + 2;
+  const isDropOff = params.deliveryType === "dropoff";
 
   if (!fontsLoaded) {
     return null;
@@ -82,20 +86,36 @@ export default function CollectConfirmation() {
           </View>
         </View>
 
-        <Text style={styles.title}>Coleta Agendada!</Text>
+        <Text style={styles.title}>
+          {isDropOff ? "Entrega Confirmada!" : "Coleta Agendada!"}
+        </Text>
         <Text style={styles.subtitle}>
-          O circuito de reciclagem começou. Prepare seus itens e aguarde o nosso
-          agente.
+          {isDropOff
+            ? "O circuito de reciclagem começou. Leve seus itens ao ponto físico escolhido."
+            : "O circuito de reciclagem começou. Prepare seus itens e aguarde o nosso agente."}
         </Text>
 
         <View style={styles.summaryCard}>
           <View style={styles.infoBlock}>
             <View style={styles.infoIconBox}>
-              <MaterialIcons name="event" size={18} color={COLORS.primary} />
+              <MaterialIcons
+                name={isDropOff ? "location-on" : "event"}
+                size={18}
+                color={COLORS.primary}
+              />
             </View>
             <View>
-              <Text style={styles.infoLabel}>DATA DA COLETA</Text>
-              <Text style={styles.infoValue}>{formatDate(params.date)}</Text>
+              <Text style={styles.infoLabel}>
+                {isDropOff ? "PONTO DE ENTREGA" : "DATA DA COLETA"}
+              </Text>
+              <Text style={styles.infoValue}>
+                {isDropOff ? params.pointName || "Ponto físico" : formatDate(params.date)}
+              </Text>
+              {isDropOff ? (
+                <Text style={styles.infoDescription}>
+                  {params.pointAddress || "Endereço não informado"}
+                </Text>
+              ) : null}
             </View>
           </View>
 
@@ -104,8 +124,12 @@ export default function CollectConfirmation() {
               <MaterialIcons name="schedule" size={18} color={COLORS.primary} />
             </View>
             <View>
-              <Text style={styles.infoLabel}>JANELA DE HORÁRIO</Text>
-              <Text style={styles.infoValue}>{params.time || "A definir"}</Text>
+              <Text style={styles.infoLabel}>
+                {isDropOff ? "HORÁRIO DO PONTO" : "JANELA DE HORÁRIO"}
+              </Text>
+              <Text style={styles.infoValue}>
+                {isDropOff ? params.pointHours || "A definir" : params.time || "A definir"}
+              </Text>
             </View>
           </View>
 
@@ -136,16 +160,12 @@ export default function CollectConfirmation() {
           <View style={styles.stepItem}>
             <Text style={styles.stepNumber}>02</Text>
             <Text style={styles.stepText}>
-              Certifique-se de que haverá alguém no local
+              {isDropOff
+                ? "Leve os itens ao ponto físico dentro do horário de funcionamento"
+                : "Certifique-se de que haverá alguém no local"}
             </Text>
           </View>
 
-          <View style={styles.stepItem}>
-            <Text style={styles.stepNumber}>03</Text>
-            <Text style={styles.stepText}>
-              O agente validará o descarte via QR Code
-            </Text>
-          </View>
         </View>
 
         <TouchableOpacity
@@ -165,8 +185,12 @@ export default function CollectConfirmation() {
               pathname: "/colect/revision",
               params: {
                 selectedItems: JSON.stringify(collectionItems),
+                deliveryType: isDropOff ? "dropoff" : "pickup",
                 date: params.date || "",
                 time: params.time || "",
+                pointName: params.pointName || "",
+                pointAddress: params.pointAddress || "",
+                pointHours: params.pointHours || "",
               },
             })
           }
@@ -263,6 +287,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     lineHeight: 24,
     fontFamily: "Manrope-Bold",
+  },
+  infoDescription: {
+    color: COLORS.onSurfaceVariant,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: "Manrope-Regular",
+    marginTop: 4,
   },
   cardDivider: {
     height: 1,

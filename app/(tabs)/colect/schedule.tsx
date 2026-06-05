@@ -21,9 +21,34 @@ type SelectedItem = {
 };
 
 const TIME_PERIODS = [
-  { id: "manha", title: "Manhã", range: "08h às 12h" },
-  { id: "tarde", title: "Tarde", range: "12h às 18h" },
+  { id: "manha", title: "Manhã", range: "08h às 12h", endHour: 12 },
+  { id: "tarde", title: "Tarde", range: "12h às 18h", endHour: 18 },
 ] as const;
+
+type TimePeriod = (typeof TIME_PERIODS)[number];
+
+const formatLocalDate = (value: Date) => {
+  const year = value.getFullYear();
+  const month = String(value.getMonth() + 1).padStart(2, "0");
+  const day = String(value.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const isSameLocalDay = (dateString: string, currentDate: Date) =>
+  dateString === formatLocalDate(currentDate);
+
+const isPeriodAvailable = (
+  selectedDate: string | null,
+  period: TimePeriod,
+  currentDate: Date,
+) => {
+  if (!selectedDate || !isSameLocalDay(selectedDate, currentDate)) {
+    return true;
+  }
+
+  return currentDate.getHours() < period.endHour;
+};
 
 LocaleConfig.locales["pt-br"] = {
   monthNames: [
@@ -70,7 +95,10 @@ LocaleConfig.defaultLocale = "pt-br";
 
 export default function ColectSchedule() {
   const { fontsLoaded } = useAppFonts();
-  const params = useLocalSearchParams<{ selectedItems?: string }>();
+  const params = useLocalSearchParams<{
+    selectedItems?: string;
+    deliveryType?: string;
+  }>();
   const router = useRouter();
 
   const selectedItems: SelectedItem[] = React.useMemo(() => {
@@ -81,16 +109,14 @@ export default function ColectSchedule() {
     }
   }, [params.selectedItems]);
 
-  const today = new Date().toISOString().split("T")[0];
+  const currentDate = new Date();
+  const today = formatLocalDate(currentDate);
 
-const [date, setDate] = React.useState<string | null>(today);
+  const [date, setDate] = React.useState<string | null>(today);
   const [time, setTime] = React.useState<string | null>(null);
   const [errors, setErrors] = React.useState({ date: "", time: "" });
 
-  const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-
-const minDate = tomorrow.toISOString().split("T")[0];
+  const minDate = today;
 
   if (!fontsLoaded) return null;
 
@@ -161,14 +187,24 @@ const minDate = tomorrow.toISOString().split("T")[0];
             hideExtraDays
             onDayPress={(day) => {
               setDate(day.dateString);
+              const selectedPeriod = TIME_PERIODS.find(
+                (period) => period.id === time,
+              );
+
+              if (
+                selectedPeriod &&
+                !isPeriodAvailable(day.dateString, selectedPeriod, currentDate)
+              ) {
+                setTime(null);
+              }
+
               if (errors.date) {
                 setErrors((current) => ({ ...current, date: "" }));
               }
             }}
             markedDates={date ? { [date]: { selected: true } } : {}}
             theme={{
-              todayBackgroundColor: COLORS.primary,
-              todayTextColor: "#fff",
+              todayTextColor: COLORS.primary,
               textDayFontFamily: "Manrope-Regular",
               textMonthFontFamily: "Manrope-Bold",
               textDayHeaderFontFamily: "Manrope-SemiBold",
@@ -177,8 +213,8 @@ const minDate = tomorrow.toISOString().split("T")[0];
               monthTextColor: COLORS.onSurface,
               arrowColor: COLORS.primary,
               textDisabledColor: COLORS.outline,
-			selectedDayBackgroundColor:"#a7c3b8",
-			selectedDayTextColor: "#003824",
+              selectedDayBackgroundColor: COLORS.primary,
+              selectedDayTextColor: COLORS.onPrimary,
             }}
             style={{ borderRadius: 12 }}
           />
@@ -191,38 +227,51 @@ const minDate = tomorrow.toISOString().split("T")[0];
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Horário</Text>
             <View style={styles.periodsContainer}>
-              {TIME_PERIODS.map((period) => (
-                <TouchableOpacity
-                  key={period.id}
-                  style={[
-                    styles.periodCard,
-                    time === period.id ? styles.periodCardActive : null,
-                  ]}
-                  onPress={() => {
-                    setTime(period.id);
-                    if (errors.time) {
-                      setErrors((current) => ({ ...current, time: "" }));
-                    }
-                  }}
-                >
-                  <Text
+              {TIME_PERIODS.map((period) => {
+                const isAvailable = isPeriodAvailable(
+                  date,
+                  period,
+                  currentDate,
+                );
+
+                return (
+                  <TouchableOpacity
+                    key={period.id}
                     style={[
-                      styles.periodTitle,
-                      time === period.id ? styles.periodTitleActive : null,
+                      styles.periodCard,
+                      time === period.id ? styles.periodCardActive : null,
+                      !isAvailable ? styles.periodCardDisabled : null,
                     ]}
+                    disabled={!isAvailable}
+                    activeOpacity={0.85}
+                    onPress={() => {
+                      setTime(period.id);
+                      if (errors.time) {
+                        setErrors((current) => ({ ...current, time: "" }));
+                      }
+                    }}
                   >
-                    {period.title}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.periodRange,
-                      time === period.id ? styles.periodRangeActive : null,
-                    ]}
-                  >
-                    {period.range}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+                    <Text
+                      style={[
+                        styles.periodTitle,
+                        time === period.id ? styles.periodTitleActive : null,
+                        !isAvailable ? styles.periodTextDisabled : null,
+                      ]}
+                    >
+                      {period.title}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.periodRange,
+                        time === period.id ? styles.periodRangeActive : null,
+                        !isAvailable ? styles.periodTextDisabled : null,
+                      ]}
+                    >
+                      {period.range}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
             </View>
             {errors.time ? (
               <Text style={styles.errorText}>{errors.time}</Text>
@@ -236,9 +285,20 @@ const minDate = tomorrow.toISOString().split("T")[0];
             style={styles.btnPrincipal}
             activeOpacity={0.9}
             onPress={() => {
+              const selectedPeriod = TIME_PERIODS.find(
+                (period) => period.id === time,
+              );
+              const isSelectedPeriodAvailable =
+                !selectedPeriod ||
+                isPeriodAvailable(date, selectedPeriod, new Date());
+
               const nextErrors = {
                 date: date ? "" : "Selecione uma data para continuar.",
-                time: time ? "" : "Selecione um horário para continuar.",
+                time: !time
+                  ? "Selecione um horário para continuar."
+                  : isSelectedPeriodAvailable
+                    ? ""
+                    : "Selecione um período disponível para continuar.",
               };
 
               setErrors(nextErrors);
@@ -252,6 +312,7 @@ const minDate = tomorrow.toISOString().split("T")[0];
                 pathname: "/colect/revision",
                 params: {
                   selectedItems: JSON.stringify(selectedItems),
+                  deliveryType: params.deliveryType || "pickup",
                   date: date || "",
                   time:
                     time === "manha"
@@ -437,6 +498,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
+  periodCardDisabled: {
+    opacity: 0.45,
+  },
   periodTitle: {
     color: COLORS.onSurface,
     fontFamily: "Manrope-Bold",
@@ -453,6 +517,9 @@ const styles = StyleSheet.create({
   },
   periodRangeActive: {
     color: "#0b4c38",
+  },
+  periodTextDisabled: {
+    color: COLORS.outline,
   },
   footerActionContainer: {
     marginTop: 32,

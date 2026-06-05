@@ -3,7 +3,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import React from "react";
 import {
   ScrollView,
@@ -22,6 +22,16 @@ type CollectionItem = {
   label: string;
   quantity: number;
   category?: string;
+};
+
+type Address = {
+  cep: string;
+  street: string;
+  number: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
 };
 
 const CATEGORY_META: Record<
@@ -62,14 +72,33 @@ function formatDate(date?: string) {
   return `${day} ${monthNames[Number(month) - 1]}, ${year}`;
 }
 
+function formatPickupAddress(address: Address | null) {
+  if (!address) return "Endereço não cadastrado";
+
+  const streetLine = [address.street, address.number].filter(Boolean).join(", ");
+  const neighborhoodLine = [address.neighborhood, address.city, address.state]
+    .filter(Boolean)
+    .join(" - ");
+
+  return [streetLine, neighborhoodLine, address.cep ? `CEP ${address.cep}` : ""]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export default function ColectRevision() {
   const router = useRouter();
   const params = useLocalSearchParams<{
     selectedItems?: string;
+    deliveryType?: string;
     date?: string;
     time?: string;
+    pointId?: string;
+    pointName?: string;
+    pointAddress?: string;
+    pointHours?: string;
   }>();
   const { fontsLoaded } = useAppFonts();
+  const [pickupAddress, setPickupAddress] = React.useState<Address | null>(null);
 
   const collectionItems: CollectionItem[] = React.useMemo(() => {
     try {
@@ -95,6 +124,35 @@ export default function ColectRevision() {
   const totalItems = collectionItems.reduce((sum, item) => sum + item.quantity, 0);
   const impactKg = (totalItems * 0.6).toFixed(1);
   const ecoPoints = totalItems * 112 + 2;
+  const isDropOff = params.deliveryType === "dropoff";
+  const pickupAddressText = formatPickupAddress(pickupAddress);
+
+  React.useEffect(() => {
+    async function loadPickupAddress() {
+      const user = auth.currentUser;
+
+      if (!user || isDropOff) {
+        return;
+      }
+
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      const address = userDoc.data()?.address;
+
+      if (address) {
+        setPickupAddress({
+          cep: address.cep || "",
+          street: address.street || "",
+          number: address.number || "",
+          complement: address.complement || "",
+          neighborhood: address.neighborhood || "",
+          city: address.city || "",
+          state: address.state || "",
+        });
+      }
+    }
+
+    loadPickupAddress();
+  }, [isDropOff]);
 
   if (!fontsLoaded) return null;
 
@@ -122,8 +180,14 @@ async function handleConfirmCollection() {
 
         items: collectionItems,
 
-        date: params.date || "",
-        time: params.time || "",
+        deliveryType: isDropOff ? "dropoff" : "pickup",
+        date: isDropOff ? "" : params.date || "",
+        time: isDropOff ? "" : params.time || "",
+        pointId: isDropOff ? params.pointId || "" : "",
+        pointName: isDropOff ? params.pointName || "" : "",
+        pointAddress: isDropOff ? params.pointAddress || "" : "",
+        pointHours: isDropOff ? params.pointHours || "" : "",
+        pickupAddress: isDropOff ? null : pickupAddress,
 
         totalItems,
         ecoPoints,
@@ -140,8 +204,12 @@ async function handleConfirmCollection() {
       pathname: "/colect/confirmation",
       params: {
         selectedItems: JSON.stringify(collectionItems),
+        deliveryType: isDropOff ? "dropoff" : "pickup",
         date: params.date || "",
         time: params.time || "",
+        pointName: params.pointName || "",
+        pointAddress: params.pointAddress || "",
+        pointHours: params.pointHours || "",
       },
     });
 
@@ -194,8 +262,8 @@ async function handleConfirmCollection() {
 
         <Text style={styles.title}>Revisão do Pedido</Text>
         <Text style={styles.subtitle}>
-          Quase lá. Verifique os detalhes da sua coleta digital e confirme o
-          circuito de reciclagem.
+          Quase lá. Verifique os detalhes do descarte e confirme o circuito de
+          reciclagem.
         </Text>
 
         <View style={styles.panel}>
@@ -257,17 +325,74 @@ async function handleConfirmCollection() {
           <View style={styles.sectionCard}>
             <View style={styles.sectionHeaderLeft}>
               <View style={styles.sectionIconBox}>
-                <MaterialIcons name="event" size={18} color={COLORS.primary} />
+                <MaterialIcons
+                  name={isDropOff ? "location-on" : "event"}
+                  size={18}
+                  color={COLORS.primary}
+                />
               </View>
-              <Text style={styles.sectionTitle}>Data e Hora</Text>
+              <Text style={styles.sectionTitle}>
+                {isDropOff ? "Local de entrega" : "Data e Hora"}
+              </Text>
             </View>
 
-            <Text style={styles.dateValue}>{formatDate(params.date)}</Text>
-            <View style={styles.timeRow}>
-              <MaterialIcons name="schedule" size={14} color={COLORS.primary} />
-              <Text style={styles.timeValue}> {params.time || "A definir"}</Text>
-            </View>
+            {isDropOff ? (
+              <>
+                <Text style={styles.locationValue}>
+                  {params.pointName || "Ponto físico"}
+                </Text>
+                <Text style={styles.locationAddress}>
+                  {params.pointAddress || "Endereço não informado"}
+                </Text>
+                <View style={styles.timeRow}>
+                  <MaterialIcons name="schedule" size={14} color={COLORS.primary} />
+                  <Text style={styles.timeValue}>
+                    {" "}
+                    {params.pointHours || "Horário não informado"}
+                  </Text>
+                </View>
+              </>
+            ) : (
+              <>
+                <Text style={styles.dateValue}>{formatDate(params.date)}</Text>
+                <View style={styles.timeRow}>
+                  <MaterialIcons name="schedule" size={14} color={COLORS.primary} />
+                  <Text style={styles.timeValue}> {params.time || "A definir"}</Text>
+                </View>
+              </>
+            )}
           </View>
+
+          {!isDropOff && (
+            <View style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <View style={styles.sectionHeaderLeft}>
+                  <View style={styles.sectionIconBox}>
+                    <MaterialIcons
+                      name="home"
+                      size={18}
+                      color={COLORS.primary}
+                    />
+                  </View>
+                  <Text style={styles.sectionTitle}>Endereço de coleta</Text>
+                </View>
+
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => router.push("/profile")}
+                >
+                  <Text style={styles.editText}>EDITAR</Text>
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.addressValue}>{pickupAddressText}</Text>
+              {pickupAddress?.complement ? (
+                <Text style={styles.addressComplement}>
+                  Complemento: {pickupAddress.complement}
+                </Text>
+              ) : null}
+            </View>
+          )}
 
           <View style={styles.impactCard}>
             <Text style={styles.impactEyebrow}>ESTIMATIVA DE IMPACTO</Text>
@@ -305,7 +430,9 @@ async function handleConfirmCollection() {
           }
   
         >
-          <Text style={styles.confirmButtonText}>Confirmar Coleta</Text>
+          <Text style={styles.confirmButtonText}>
+            {isDropOff ? "Confirmar Entrega" : "Confirmar Coleta"}
+          </Text>
           <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />
         </TouchableOpacity>
 
@@ -486,6 +613,35 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope-Bold",
     marginTop: 12,
     marginBottom: 8,
+  },
+  locationValue: {
+    color: "#F2F6FF",
+    fontSize: 24,
+    lineHeight: 30,
+    fontFamily: "Manrope-Bold",
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  locationAddress: {
+    color: COLORS.onSurfaceVariant,
+    fontSize: 13,
+    lineHeight: 19,
+    fontFamily: "Manrope-Regular",
+    marginBottom: 10,
+  },
+  addressValue: {
+    color: "#F2F6FF",
+    fontSize: 15,
+    lineHeight: 22,
+    fontFamily: "Manrope-Regular",
+    marginTop: 2,
+  },
+  addressComplement: {
+    color: COLORS.primary,
+    fontSize: 12,
+    lineHeight: 18,
+    fontFamily: "Manrope-Regular",
+    marginTop: 8,
   },
   timeRow: {
     flexDirection: "row",

@@ -10,11 +10,10 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
 import CategoryModal from "../../components/CategoryModal";
-import CollectModal from "../../components/CollectModal";
 import { COLORS } from "../../themes";
 
 const { width: screenWidth } = Dimensions.get("window");
@@ -28,6 +27,7 @@ interface Categoria {
   subtitulo: string;
   icon: string;
 }
+
 
 //grid home
 const CATEGORIAS: Categoria[] = [
@@ -63,10 +63,11 @@ export default function ColectScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const [categoriaSelecionada, setCategoriaSelecionada] =
     useState<CategoriaId | null>(null);
-  const [quantidade, setQuantidade] = useState<number>(0);
   const [activeModal, setActiveModal] = useState<CategoriaId | null>(null);
+  
   //criar estado de erro
   const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   //array unico
   const CATEGORY_ITEMS: Record<
@@ -145,13 +146,6 @@ export default function ColectScreen() {
     .flatMap((category) => Object.values(category))
     .reduce((sum, qty) => sum + qty, 0);
 
-  //ESTADO MODAL DE MINHA COLETA
-  const [collectionModalVisible, setCollectionModalVisible] = useState(false);
-
-  const modalItems = activeModal
-  ? CATEGORY_ITEMS[activeModal]
-  : [];
-
   const collectionItems = Object.entries(selection).flatMap(
     ([catId, items]) =>
       Object.entries(items)
@@ -168,8 +162,28 @@ export default function ColectScreen() {
         }),
   );
 
-  //alertas de botao
+  const continueFlow = (selectedItems = collectionItems) => {
+    if (selectedItems.length === 0) {
+      setErrorMessage("Selecione pelo menos um item para continuar.");
+      setShowError(true);
 
+      setTimeout(() => {
+        setShowError(false);
+      }, 3000);
+
+      return;
+    }
+
+    setShowError(false);
+
+    router.push({
+      pathname: "/colect/schedule",
+      params: {
+        selectedItems: JSON.stringify(selectedItems),
+        deliveryType: "pickup",
+      },
+    });
+  };
 
   if (!fontsLoaded) {
     return null; // O App fica travado na Splash Screen até as fontes estarem prontas
@@ -200,34 +214,6 @@ export default function ColectScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Step Indicator */}
-        <View style={styles.stepContainer}>
-          <View style={styles.stepLine} />
-
-          <View style={styles.stepWrapper}>
-            <View style={[styles.stepDot, styles.stepDotActive]}>
-              <Text style={styles.stepDotTextActive}>1</Text>
-            </View>
-            <Text style={[styles.stepLabel, styles.stepLabelActive]}>
-              Itens
-            </Text>
-          </View>
-
-          <View style={styles.stepWrapper}>
-            <View style={styles.stepDot}>
-              <Text style={styles.stepDotText}>2</Text>
-            </View>
-            <Text style={styles.stepLabel}>Data</Text>
-          </View>
-
-          <View style={styles.stepWrapper}>
-            <View style={styles.stepDot}>
-              <Text style={styles.stepDotText}>3</Text>
-            </View>
-            <Text style={styles.stepLabel}>Confirma</Text>
-          </View>
-        </View>
-
         {/* Editorial Header */}
         <View style={styles.editorialContainer}>
           <Text style={styles.tituloPrincipal}>
@@ -321,7 +307,10 @@ export default function ColectScreen() {
             onPress={() =>
               router.push({
                 pathname: "/colect/itens",
-                params: { selectedItems: JSON.stringify(collectionItems) },
+                params: {
+                  selectedItems: JSON.stringify(collectionItems),
+                  deliveryType: "pickup",
+                },
               })
             }
           >
@@ -364,9 +353,7 @@ export default function ColectScreen() {
       color="#FF9800"
     />
 
-    <Text style={styles.errorMessage}>
-      Selecione pelo menos um item para continuar.
-    </Text>
+    <Text style={styles.errorMessage}>{errorMessage}</Text>
 
     <TouchableOpacity
       onPress={() => setShowError(false)}
@@ -402,29 +389,10 @@ export default function ColectScreen() {
                     }),
               );
 
-                // Verifica se não há itens
-                if (selectedItems.length === 0) {
-                  setShowError(true);
-
-                  setTimeout(() => {
-                    setShowError(false);
-                  }, 3000);
-        
-
-                  return;
-                 
-                }
-
-                  // Esconde erro caso tenha itens
-                  setShowError(false);
-
-              router.push({
-                pathname: "/colect/schedule",
-                params: { selectedItems: JSON.stringify(selectedItems) },
-              });
+              continueFlow(selectedItems);
             }}
           >
-            <Text style={styles.btnPrincipalTexto}>Continuar Agendamento</Text>
+            <Text style={styles.btnPrincipalTexto}>Continuar</Text>
           </TouchableOpacity>
 
           <View style={styles.infoTaxaContainer}>
@@ -449,20 +417,6 @@ export default function ColectScreen() {
           if (!activeModal) return;
 
           changeQty(activeModal, itemId, delta);
-        }}
-      />
-
-      <CollectModal
-        visible={collectionModalVisible}
-        items={collectionItems}
-        onClose={() => setCollectionModalVisible(false)}
-        onAddMore={() => setCollectionModalVisible(false)}
-        onContinue={() => {
-          setCollectionModalVisible(false);
-          router.push({
-            pathname: "/colect/schedule",
-            params: { selectedItems: JSON.stringify(collectionItems) },
-          });
         }}
       />
     </View>
@@ -599,6 +553,104 @@ const styles = StyleSheet.create({
     color: "#bbcabf",
     lineHeight: 22,
     maxWidth: 320,
+  },
+  methodOptions: {
+    gap: 12,
+    marginBottom: 18,
+  },
+  methodCard: {
+    backgroundColor: COLORS.surfaceContainer,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  methodCardSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: "#222a3d",
+  },
+  methodIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "rgba(78, 222, 163, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  methodContent: {
+    flex: 1,
+  },
+  methodTitle: {
+    color: COLORS.onSurface,
+    fontFamily: "Manrope-Bold",
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  methodDescription: {
+    color: COLORS.onSurfaceVariant,
+    fontFamily: "Manrope-Regular",
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  pointsList: {
+    gap: 10,
+    marginBottom: 28,
+  },
+  pointCard: {
+    backgroundColor: COLORS.surfaceContainerLow,
+    borderRadius: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
+    flexDirection: "row",
+    gap: 12,
+  },
+  pointCardSelected: {
+    borderColor: COLORS.primary,
+    backgroundColor: "rgba(78, 222, 163, 0.08)",
+  },
+  pointIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(78, 222, 163, 0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pointContent: {
+    flex: 1,
+  },
+  pointTitleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 8,
+    marginBottom: 5,
+  },
+  pointName: {
+    flex: 1,
+    color: COLORS.onSurface,
+    fontFamily: "Manrope-Bold",
+    fontSize: 14,
+  },
+  pointDistance: {
+    color: COLORS.primary,
+    fontFamily: "Manrope-Bold",
+    fontSize: 12,
+  },
+  pointAddress: {
+    color: COLORS.onSurfaceVariant,
+    fontFamily: "Manrope-Regular",
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  pointHours: {
+    color: COLORS.secondary,
+    fontFamily: "Manrope-Regular",
+    fontSize: 12,
+    marginTop: 5,
   },
   // Grid Categorias
   gridCategorias: {

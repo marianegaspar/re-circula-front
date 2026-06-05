@@ -67,6 +67,13 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="collection-points"
+        options={{
+          href: null,
+        }}
+      />
+
       
     </Tabs>
   );

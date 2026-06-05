@@ -90,7 +90,14 @@ const CATEGORY_ITEMS: Record<
 
 export default function ColectItens() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ selectedItems?: string }>();
+  const params = useLocalSearchParams<{
+    selectedItems?: string;
+    deliveryType?: string;
+    pointId?: string;
+    pointName?: string;
+    pointAddress?: string;
+    pointHours?: string;
+  }>();
   const { fontsLoaded } = useAppFonts();
 
   const initialItems = React.useMemo<SelectedItem[]>(() => {
@@ -171,6 +178,7 @@ export default function ColectItens() {
   const modalTitle = editingCategory
     ? `Editar ${CATEGORY_META[editingCategory]?.title || "categoria"}`
     : "";
+  const isDropOff = params.deliveryType === "dropoff";
 
   if (!fontsLoaded) {
     return null;
@@ -309,10 +317,25 @@ export default function ColectItens() {
             style={styles.continueButton}
             activeOpacity={0.9}
             onPress={() =>
-              router.push({
-                pathname: "/colect/schedule",
-                params: { selectedItems: JSON.stringify(selectedItems) },
-              })
+              isDropOff
+                ? router.push({
+                    pathname: "/colect/revision",
+                    params: {
+                      selectedItems: JSON.stringify(selectedItems),
+                      deliveryType: "dropoff",
+                      pointId: params.pointId || "",
+                      pointName: params.pointName || "",
+                      pointAddress: params.pointAddress || "",
+                      pointHours: params.pointHours || "",
+                    },
+                  })
+                : router.push({
+                    pathname: "/colect/schedule",
+                    params: {
+                      selectedItems: JSON.stringify(selectedItems),
+                      deliveryType: "pickup",
+                    },
+                  })
             }
           >
             <Text style={styles.continueButtonText}>Continuar</Text>

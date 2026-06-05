@@ -46,6 +46,15 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [address, setAddress] = useState({
+    cep: "",
+    street: "",
+    number: "",
+    complement: "",
+    neighborhood: "",
+    city: "",
+    state: "",
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({
     fullName: "",
@@ -60,6 +69,15 @@ export default function Register() {
   }
 
 async function handleRegister() {
+  const normalizedAddress = {
+    cep: address.cep.trim(),
+    street: address.street.trim(),
+    number: address.number.trim(),
+    complement: address.complement.trim(),
+    neighborhood: address.neighborhood.trim(),
+    city: address.city.trim(),
+    state: address.state.trim().toUpperCase(),
+  };
 
   const nextErrors = {
     fullName: fullName.trim()
@@ -122,6 +140,7 @@ await setDoc(
   {
     fullName,
     email,
+    address: normalizedAddress,
     createdAt: new Date(),
   }
 );
@@ -473,6 +492,22 @@ await setDoc(
   inputGroup: {
     gap: 8,
   },
+  rowInputs: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  numberInput: {
+    flex: 0.42,
+  },
+  complementInput: {
+    flex: 0.58,
+  },
+  cityInput: {
+    flex: 1,
+  },
+  stateInput: {
+    width: 78,
+  },
   label: {
     fontSize: 10,
     color: COLORS.onSurfaceVariant,
@@ -510,6 +545,22 @@ await setDoc(
     fontSize: 12,
     marginTop: 4,
     marginLeft: 4,
+  },
+  addressSection: {
+    gap: 16,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.outline + "20",
+    paddingTop: 20,
+  },
+  sectionHeaderInline: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  addressTitle: {
+    fontFamily: "Manrope-Bold",
+    color: COLORS.onSurface,
+    fontSize: 16,
   },
   btnPrimary: {
     backgroundColor: COLORS.primary,
@@ -620,4 +671,3 @@ await setDoc(
     color: COLORS.onSurfaceVariant,
   },
 });
-
