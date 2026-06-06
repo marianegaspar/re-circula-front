@@ -13,44 +13,56 @@ import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { COLORS } from "../themes";
 
 
-
-const COLLECTION_POINTS = [
+export const COLLECTION_POINTS = [
   {
+    id: "1",
     title: "EcoHub Central",
-    image: require("../../assets/images/ecoponto1.jpg"),
+    image: require("../../assets/images/geomap.png"),
     distance: "1,8 km",
-   
+    adress: "Rua das Flores, 123 - Centro",
+    openingHours: "Segunda a Sexta • 08h às 18h",
     icon: "location-on",
     tags: ["🔋 Pilhas", "📱 Celulares", "💻 Notebooks"],
   },
   {
+    id: "2",
     title: "TechRecycle",
     image: require("../../assets/images/ecoponto2.jpg"),
     distance: "2,7 km",
-   
+    adress: "Av. Brasil, 456 - Jardim América",
+    openingHours: "Segunda a Sábado • 09h às 17h",
     icon: "location-on",
     tags: ["🖥️ Monitores", "🖨️ Impressoras"],
   },
   {
+    id: "3",
     title: "Associação Comercial de Santos",
     image: require("../../assets/images/ecoponto3.webp"),
     distance: "3,5 km",
-   
+    adress: "Praça Mauá, 100 - Centro",
+    openingHours: "Segunda a Sexta • 08h às 18h",
     icon: "location-on",
     tags: ["📺 TVs", "🔌 Cabos", "📱 Eletrônicos"],
   },
   {
+    id: "4",
     title: "Centro de Coleta Tech",
+    image: require("../../assets/images/ecoponto1.jpg"),
     distance: "4,1 km",
-
-   
+    
+    adress: "Av. Brasil, 456 - Jardim América",
+    openingHours: "Segunda a Sábado • 09h às 17h",
     icon: "location-on",
     tags: ["💻 Notebooks", "🖨️ Impressoras"],
   },
   {
+    id: "5",
     title: "Reboot Reciclagem",
+    image: require("../../assets/images/ecoponto2.jpg"),
     distance: "5,3 km",
     
+    adress: "Rua das Flores, 123 - Centro",
+    openingHours: "Segunda a Sexta • 08h às 18h",
     icon: "location-on",
     tags: ["🔋 Baterias", "💡 Lâmpadas"],
   },
@@ -87,7 +99,15 @@ export default function CollectionPointsScreen() {
 
         <View style={styles.collectionList}>
           {COLLECTION_POINTS.map((item) => (
-            <TouchableOpacity key={item.title} style={styles.collectionItem}>
+            <TouchableOpacity key={item.id} 
+            style={styles.collectionItem}
+            onPress={() =>
+              router.push ({
+                pathname: "/collection-points-details",
+                params: { id: item.id.toString() }, 
+
+              })
+            }>
               <Image source={item.image}
                    style={styles.collectionImage}  />
               <View style={styles.collectionHeader}>
@@ -102,10 +122,14 @@ export default function CollectionPointsScreen() {
               </View>
               
               <View style={styles.collectionContent}>
-              
-              
+          
+    
                 <Text style={styles.collectionTitle}>
                   {item.title}
+                  </Text>
+
+                  <Text style={styles.collectionDistance}>
+                  {item.adress}
                   </Text>
           
                 <Text style={styles.collectionDistance}>

@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import React from "react";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -107,33 +108,13 @@ export default function HomeScreen() {
           <View style={styles.profileHeroText}>
             <Text style={styles.title}>Olá, {user?.displayName}</Text>
             <Text style={styles.subtitle}>
-              Seu impacto positivo hoje ajuda o amanhã.
+              Vamos dar o destino correto aos seus eletrônicos hoje?
             </Text>
           </View>
         </TouchableOpacity>
 
-        {/* Bento Grid: Resumo */}
-        <View style={styles.bentoGrid}>
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryColumn}>
-              <View style={styles.summaryIconWrap}>
-                <MaterialIcons
-                  name="stars"
-                  size={22}
-                  color={COLORS.onPrimary}
-                />
-              </View>
-              <Text style={styles.summaryValue}>{totalPoints}</Text>
-              <Text style={styles.summaryLabel}>Pontos</Text>
-            </View>
-            <MaterialIcons
-              name="recycling"
-              size={92}
-              color="rgba(0, 56, 36, 0.12)"
-              style={styles.summaryBgIcon}
-            />
-          </View>
-        <Text style={styles.title}> VAMOS DESCARTAR?</Text>
+       
+   
           <View style={styles.row}>
             {/*Pontos de Coleta*/}
             <TouchableOpacity
@@ -156,7 +137,6 @@ export default function HomeScreen() {
               </View>
             </TouchableOpacity>
 
-           
               <TouchableOpacity
               style={styles.smallCard}
               activeOpacity={0.85}
@@ -180,6 +160,29 @@ export default function HomeScreen() {
           
         
           </View>
+
+           {/* Bento Grid: Resumo */}
+        <View style={styles.bentoGrid}>
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryColumn}>
+              <View style={styles.summaryIconWrap}>
+                <MaterialIcons
+                  name="stars"
+                  size={22}
+                  color={COLORS.onPrimary}
+                />
+              </View>
+              <Text style={styles.summaryValue}>{totalPoints}</Text>
+              <Text style={styles.summaryLabel}>Pontos</Text>
+            </View>
+            <MaterialIcons
+              name="recycling"
+              size={92}
+              color="rgba(0, 56, 36, 0.12)"
+              style={styles.summaryBgIcon}
+            />
+        
+          </View>
        
 
         {schedules.length > 0 && (
@@ -188,7 +191,8 @@ export default function HomeScreen() {
             <View style={styles.requestsHeader}>
               <Text style={styles.requestsTitle}>Minhas Solicitações</Text>
               <TouchableOpacity>
-                <Text style={styles.requestsLink}>Ver histórico</Text>
+                {
+                /*<Text style={styles.requestsLink}>Ver histórico</Text> */ }
               </TouchableOpacity>
             </View>
 
@@ -237,8 +241,27 @@ export default function HomeScreen() {
             </View>
           </>
         )}
- </View>
-      </View>
+        <Text style={styles.title}>Centro de Aprendizado</Text>
+
+
+        <View style={styles.infoSection}>
+
+          <Image source={require("../../assets/images/ewaste.webp")}
+          style={{ width: "100%", height: 120, borderRadius: 8 }}  />
+
+          <View style={styles.infoContent}>
+            <Text style={styles.requestTitle}>O que é lixo eletrônico?</Text>
+            <Text style={styles.requestSubtitle}>
+              Entenda a composição dos dispositvos descartados.
+              
+            </Text>
+            </View>
+          </View>
+        </View>
+
+
+        </View>
+
     </ScrollView>
   );
 }
@@ -328,7 +351,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   summaryValue: {
-    fontFamily: "Manrope-ExtraBold",
+    fontFamily: "Manrope-Bold",
     fontSize: 38,
     color: COLORS.onPrimary,
   },
@@ -356,6 +379,7 @@ const styles = StyleSheet.create({
   smallCardValue: { fontSize: 20, color: COLORS.onSurface },
   smallCardLabel: {
     fontSize: 12,
+    fontFamily: "Manrope-ExtraBold",
     color: COLORS.onSurfaceVariant,
     letterSpacing: 1,
     marginBottom: 4,
@@ -425,6 +449,14 @@ const styles = StyleSheet.create({
   },
   requestsList: {
     gap: 16,
+  },
+  infoSection:{
+      backgroundColor: COLORS.surfaceContainer,
+    borderRadius: 10,
+
+  },
+  infoContent: {
+     padding: 16,
   },
   requestCard: {
     backgroundColor: COLORS.surfaceContainer,

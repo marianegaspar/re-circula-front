@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -205,6 +205,32 @@ export default function ColectScreen() {
           />
         </TouchableOpacity>
       </View>
+      
+     {/* Step Indicator */}
+        <View style={styles.stepContainer}>
+          <View style={styles.stepLine} />
+
+              <View style={styles.stepWrapper}>
+            <View style={[styles.stepDot, styles.stepDotActive]}>
+              <Text style={styles.stepDotTextActive}>1</Text>
+            </View>
+            <Text style={[styles.stepLabel, styles.stepLabelActive]}>Itens</Text>
+          </View>
+
+          <View style={styles.stepWrapper}>
+            <View style={[styles.stepDot, styles.stepDot]}>
+              <Text style={styles.stepDotText}>2</Text>
+            </View>
+            <Text style={[styles.stepLabel, styles.stepLabel]}>Data</Text>
+          </View>
+
+          <View style={styles.stepWrapper}>
+            <View style={styles.stepDot}>
+              <Text style={styles.stepDotText}>3</Text>
+            </View>
+            <Text style={styles.stepLabel}>Confirma</Text>
+          </View>
+        </View>
 
       {/* Conteúdo Rolável */}
       <ScrollView

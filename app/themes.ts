@@ -14,4 +14,5 @@ export const COLORS = {
   outlineVariant: "#3c4a42",
   secondary: "#95d3ba",
   tertiary: "#45dfa4",
+  blue: "#4FA3E8",
 } as const; // O 'as const' torna os valores imutáveis e específicos
