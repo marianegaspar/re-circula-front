@@ -178,7 +178,10 @@ export default function HomeScreen() {
             </TouchableOpacity>
 
               <TouchableOpacity
-              style={styles.smallCard}
+              style={[styles.smallCard,{
+                 borderWidth: 1,
+                 borderColor: "#2ecc8a",
+              }]}
               activeOpacity={0.85}
               onPress={() => router.push("/colect")}
             >   
@@ -388,8 +391,7 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: "space-between",
     minHeight: 180,
-    borderWidth: 1,
-    borderColor: "#2ecc8a",
+   
     
   },
   smallCardValue: { fontSize: 20, color: COLORS.onSurface },

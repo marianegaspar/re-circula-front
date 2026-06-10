@@ -3,7 +3,7 @@
  * Evita múltiplas concessões para o mesmo evento
  */
 
-import { doc, getDoc, increment, updateDoc } from "firebase/firestore";
+import { arrayUnion, doc, getDoc, increment, runTransaction, updateDoc } from "firebase/firestore";
 import { db } from "../../src/services/firebase";
 
 /**
@@ -19,7 +19,7 @@ export enum RewardStatus {
  * Tipos de recompensas
  */
 export enum RewardType {
-  COLLECTION_POINT_DELIVERY = "collection_point_delivery", // Entrega em ponto (20 pontos)
+  COLLECTION_POINT_DELIVERY = "collection_point_delivery", // Entrega em ponto (50 pontos)
   HOME_PICKUP = "home_pickup", // Coleta domiciliar (baseada em ecoPoints)
 }
 
@@ -51,13 +51,13 @@ export async function hasBeenAwarded(
  * Marca uma entrega em ponto como recompensada e adiciona pontos
  * @param collectionPointId - ID do ponto de coleta
  * @param userId - ID do usuário
- * @param points - Número de pontos a adicionar (padrão 20)
+ * @param points - Número de pontos a adicionar (padrão 50)
  * @returns true se foi bem-sucedido, false caso contrário
  */
 export async function awardDeliveryPoints(
   collectionPointId: string,
   userId: string,
-  points: number = 20
+  points: number = 50
 ): Promise<boolean> {
   try {
     console.log("[AWARDS] Iniciando award de", points, "para entrega", collectionPointId);
@@ -71,26 +71,35 @@ export async function awardDeliveryPoints(
 
     const userRef = doc(db, "users", userId);
 
-    // Usa transação para garantir atomicidade
-    await updateDoc(userRef, {
-      pointsBalance: increment(points),
-      awardedPointDeliveries: (await getDoc(userRef)).data()?.awardedPointDeliveries || [],
+    await runTransaction(db, async (transaction) => {
+      const userDoc = await transaction.get(userRef);
+      const userData = userDoc.exists() ? userDoc.data() : {};
+      const deliveries = Array.isArray(userData?.awardedPointDeliveries)
+        ? userData.awardedPointDeliveries
+        : [];
+
+      if (deliveries.includes(collectionPointId)) {
+        throw new Error("Entrega já recompensada");
+      }
+
+      transaction.set(
+        userRef,
+        {
+          pointsBalance: increment(points),
+          awardedPointDeliveries: arrayUnion(collectionPointId),
+        },
+        { merge: true }
+      );
     });
-
-    // Adiciona o ID do ponto à lista de deliveries recompensados
-    const userData = (await getDoc(userRef)).data();
-    const currentDeliveries = userData?.awardedPointDeliveries || [];
-
-    if (!currentDeliveries.includes(collectionPointId)) {
-      await updateDoc(userRef, {
-        awardedPointDeliveries: [...currentDeliveries, collectionPointId],
-      });
-    }
 
     console.log("[AWARDS] Award concluído com sucesso");
     return true;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("[AWARDS] Erro ao adicionar pontos de entrega:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("Entrega já recompensada")) {
+      return false;
+    }
     throw error;
   }
 }

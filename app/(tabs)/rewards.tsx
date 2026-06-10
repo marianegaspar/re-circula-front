@@ -1,16 +1,16 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import {
   doc, increment, onSnapshot, setDoc
 } from "firebase/firestore";
 import React from "react";
 import {
   Alert,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { auth, db } from "../../src/services/firebase";
@@ -19,9 +19,9 @@ import { COLORS } from "../themes";
 import { getLevel } from "../utils/levels";
 
 
-
 export default function Rewards() {
   const { fontsLoaded } = useAppFonts();
+   const router = useRouter();
   const user = auth.currentUser;
   const [pointsBalance, setPointsBalance] = React.useState<number>(0);
   const [loadingPoints, setLoadingPoints] = React.useState(true);
@@ -33,24 +33,27 @@ export default function Rewards() {
   const rewards = [
     {
       id: "gift-card",
+      icon:"🎁",
       title: "Vale Presente",
       description: "Resgate vouchers para suas lojas favoritas.",
       cost: 800,
-      image: require("../../assets/images/gift-card.jpg"),
+     
     },
     {
       id: "repair-discount",
+      icon:"🎁",
       title: "Desconto Reparo",
       description: "20% off em assistência técnica autorizada.",
       cost: 1200,
-      image: require("../../assets/images/reward1.png"),
+      
     },
     {
       id: "ecocloud",
+      icon:"🎁",
       title: "EcoCloud",
       description: "Armazenamento em nuvem carbono neutro.",
       cost: 500,
-      image: require("../../assets/images/reward2.jpeg"),
+      
     },
   ];
 
@@ -115,7 +118,8 @@ export default function Rewards() {
     <ScrollView contentContainerStyle={styles.container}>
        <View style={styles.header}>
       <Text style={styles.title}>Recompensas</Text>
-      <TouchableOpacity>
+      <TouchableOpacity onPress={() =>  router.push({
+            pathname: "/how-it-works"})}>
             <MaterialIcons
               name="question-mark"
               size={20}
@@ -132,7 +136,7 @@ export default function Rewards() {
         )}
 
       <View style={styles.rewardsList}>
-        <Text style={styles.rewardHeader}>Recompensas Disponíveis</Text>
+        <Text style={styles.rewardHeader}> Disponíveis para você</Text>
 
         {rewards.map((reward) => {
           const isRedeemed = redeemedRewards.has(reward.id);
@@ -140,14 +144,20 @@ export default function Rewards() {
 
           return (
             <View key={reward.id} style={styles.rewardCard}>
-              <Image source={reward.image} style={styles.rewardImage} />
 
               <View style={styles.rewardContent}>
-                <Text style={styles.rewardTitle}>{reward.title}</Text>
-                <Text style={styles.rewardDescription}>{reward.description}</Text>
-
+                <View style={styles.rewardContainer}>
+                  <View style={styles.rewardIcon}>
+                    {reward.icon}
+                    
+                    </View>
+                  <View style={styles.rewardColumn}>
+                      <Text style={styles.rewardTitle}>{reward.title}</Text>
+                      <Text style={styles.rewardDescription}>{reward.description}</Text>
+                  </View>
+                </View>
                 <View style={styles.rewardFooter}>
-                  <Text style={styles.rewardPoints}>{reward.cost} Pontos</Text>
+                  <Text style={styles.rewardPoints}>⭐  {reward.cost} Pontos</Text>
 
                   <TouchableOpacity
                     style={[
@@ -175,6 +185,7 @@ export default function Rewards() {
           );
         })}
       </View>
+      
     </ScrollView>
   );
 }
@@ -195,7 +206,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontFamily: "Manrope-Bold",
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: "800", 
     color: COLORS.onSurface,
    
@@ -211,10 +222,10 @@ const styles = StyleSheet.create({
 
   rewardHeader: {
     fontFamily: "Manrope-Bold",
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "800",
     color: COLORS.onSurface,
-    marginBottom: 16,
+    marginBottom: 10,
   },
 
   rewardsList: {
@@ -231,7 +242,7 @@ const styles = StyleSheet.create({
     height: 120,
   },
   rewardTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: "Manrope-Bold",
     color: COLORS.onSurface,
     marginBottom: 10,
@@ -244,7 +255,7 @@ const styles = StyleSheet.create({
   rewardDescription: {
     fontSize: 14,
     fontFamily: "Manrope-Regular",
-    color: COLORS.onSurface,
+    color: COLORS.onSurfaceVariant,
     marginBottom: 10,
   },
   rewardFooter: {
@@ -270,16 +281,33 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   rewardCta: {
-    fontSize: 16,
+    fontSize: 14 ,
     fontFamily: "Manrope-Bold",
     color: COLORS.background,
   },
   rewardCtaChecked: {
     color: COLORS.onPrimary,
+  
   },
   rewardContent: {
+    flex:1,
    padding: 12,
+  }, 
+  rewardContainer:{
+    flex:1,
+    flexDirection:"row",
+    gap:8,
+
   },
+  rewardIcon:{
+    borderRadius:16,
+    borderWidth:25,
+   borderColor: COLORS.primary + "10",
+  },
+  rewardColumn:{
+    flexDirection:"column",
+  },
+
    bentoGrid: { gap: 16, marginBottom: 16 },
   summaryCard: {
     backgroundColor: COLORS.primaryContainer,

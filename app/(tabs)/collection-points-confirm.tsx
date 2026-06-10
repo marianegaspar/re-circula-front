@@ -8,7 +8,6 @@ import { COLORS } from "../themes";
 import { awardDeliveryPoints, hasBeenAwarded } from "../utils/rewards";
 import { COLLECTION_POINTS } from "./collection-points";
 
-
 export default function CollectionPointConfirm() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
@@ -54,14 +53,14 @@ export default function CollectionPointConfirm() {
         return;
       }
 
-      console.log("[COLLECTION-CONFIRM] Iniciando award de 20 pontos");
+      console.log("[COLLECTION-CONFIRM] Iniciando award de 50 pontos");
 
       // Adiciona os pontos com proteção
-      const success = await awardDeliveryPoints(String(id), user.uid, 20);
+      const success = await awardDeliveryPoints(String(id), user.uid, 50);
 
       if (success) {
-        console.log("[COLLECTION-CONFIRM] 20 pontos adicionados com sucesso");
-        Alert.alert("Sucesso!", "20 ecopontos foram creditados à sua conta.");
+        console.log("[COLLECTION-CONFIRM] 50 pontos adicionados com sucesso");
+        Alert.alert("Sucesso!", "50 ecopontos foram creditados à sua conta.");
       } else {
         console.warn("[COLLECTION-CONFIRM] Award falhou");
         Alert.alert("Atenção", "A entrega já foi recompensada.");
@@ -103,7 +102,7 @@ export default function CollectionPointConfirm() {
 
         <View style={styles.pointsCard}>
           <Text style={styles.pointsTitle}>Recompensa Estimada</Text>
-          <Text style={styles.pointsValue}>+20 Ecopontos</Text>
+          <Text style={styles.pointsValue}>+50 Ecopontos</Text>
           <Text style={styles.pointsDescription}>
             Mantenha a entrega organizada para assegurar a pontuação.
           </Text>
