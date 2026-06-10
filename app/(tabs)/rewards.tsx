@@ -1,140 +1,184 @@
 import { MaterialIcons } from "@expo/vector-icons";
+import {
+  doc, increment, onSnapshot, setDoc
+} from "firebase/firestore";
 import React from "react";
 import {
-    Image,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
+import { auth, db } from "../../src/services/firebase";
+import { LevelProgressBar } from "../components/LevelProgressBar";
 import { COLORS } from "../themes";
+import { getLevel } from "../utils/levels";
+
+
 
 export default function Rewards() {
-    
   const { fontsLoaded } = useAppFonts();
-   const [schedules, setSchedules] = React.useState<any[]>([]);
-    const totalPoints = schedules.reduce(
-    (sum, schedule) => sum + Number(schedule.ecoPoints || 0),
-    0
-  );
+  const user = auth.currentUser;
+  const [pointsBalance, setPointsBalance] = React.useState<number>(0);
+  const [loadingPoints, setLoadingPoints] = React.useState(true);
+  const [redeemedRewards, setRedeemedRewards] = React.useState<Set<string>>(new Set());
 
+  // ✅ FONTE ÚNICA DE VERDADE: users.pointsBalance
+  const totalPoints = pointsBalance;
 
-  if (!fontsLoaded) {
-    return null; // Ou um componente de carregamento
+  const rewards = [
+    {
+      id: "gift-card",
+      title: "Vale Presente",
+      description: "Resgate vouchers para suas lojas favoritas.",
+      cost: 800,
+      image: require("../../assets/images/gift-card.jpg"),
+    },
+    {
+      id: "repair-discount",
+      title: "Desconto Reparo",
+      description: "20% off em assistência técnica autorizada.",
+      cost: 1200,
+      image: require("../../assets/images/reward1.png"),
+    },
+    {
+      id: "ecocloud",
+      title: "EcoCloud",
+      description: "Armazenamento em nuvem carbono neutro.",
+      cost: 500,
+      image: require("../../assets/images/reward2.jpeg"),
+    },
+  ];
+
+  React.useEffect(() => {
+    if (!user) {
+      setLoadingPoints(false);
+      return;
+    }
+
+    console.log("[REWARDS] Iniciando onSnapshot para pointsBalance");
+
+    const userDocRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+      const userData = snapshot.data();
+      const balance = typeof userData?.pointsBalance === "number" ? userData.pointsBalance : 0;
+      console.log("[REWARDS] pointsBalance atualizado:", balance);
+      setPointsBalance(balance);
+      setLoadingPoints(false);
+    });
+
+    return () => {
+      console.log("[REWARDS] Limpando onSnapshot");
+      unsubscribe();
+    };
+  }, [user]);
+
+  const handleRedeem = async (cost: number, title: string, rewardId: string) => {
+    if (!user) {
+      Alert.alert("Atenção", "Faça login para resgatar recompensas.");
+      return;
+    }
+
+    if (totalPoints < cost) {
+      return;
+    }
+
+    try {
+      console.log("[REWARDS] Iniciando resgate: ", { title, cost, balanceAntes: totalPoints });
+
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(
+        userRef,
+        { pointsBalance: increment(-cost) },
+        { merge: true }
+      );
+
+      console.log("[REWARDS] Resgate concluído. Nova balance será atualizada via onSnapshot");
+      
+      setRedeemedRewards((prev) => new Set(prev).add(rewardId));
+      Alert.alert("Resgate realizado", `Você resgatou ${title} por ${cost} pontos.`);
+    } catch (error) {
+      console.log("[REWARDS] Erro ao realizar resgate:", error);
+      Alert.alert("Erro", "Não foi possível concluir o resgate agora.");
+    }
+  };
+
+  if (!fontsLoaded || loadingPoints) {
+    return null;
   }
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Programa de Incentivos</Text>
-      <Text style={styles.subtitle}> Transforme seus Ecopontos em recompensas!</Text>
-
-    {/* Bento Grid: Resumo */}
-        <View style={styles.bentoGrid}>
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryColumn}>
-              <View style={styles.summaryIconWrap}>
-                <MaterialIcons
-                  name="stars"
-                  size={22}
-                  color={COLORS.onPrimary}
-                />
-              </View>
-              <Text style={styles.summaryValue}>{totalPoints}</Text>
-              <Text style={styles.summaryLabel}>Pontos</Text>
-            </View>
+       <View style={styles.header}>
+      <Text style={styles.title}>Recompensas</Text>
+      <TouchableOpacity>
             <MaterialIcons
-              name="recycling"
-              size={92}
-              color="rgba(0, 56, 36, 0.12)"
-              style={styles.summaryBgIcon}
+              name="question-mark"
+              size={20}
+              color={COLORS.
+                
+                onSurface}
             />
-        
-          </View>
+          </TouchableOpacity>
+        </View>
 
-    </View>
+     {/* Barra de Progresso de Nível */}
+        {pointsBalance !== null && (
+          <LevelProgressBar levelInfo={getLevel(pointsBalance)} />
+        )}
 
       <View style={styles.rewardsList}>
-        <text style={styles.rewardHeader}>Recompensas Disponíveis</text>
+        <Text style={styles.rewardHeader}>Recompensas Disponíveis</Text>
 
-        {/*Card 1*/}
-        <TouchableOpacity style={styles.rewardCard}>
-            
-        <Image source={require("../../assets/images/gift-card.jpg")} 
-        style={{ width: "100%", height: 120, borderRadius: 8 }} />
+        {rewards.map((reward) => {
+          const isRedeemed = redeemedRewards.has(reward.id);
+          const canRedeem = !isRedeemed && totalPoints >= reward.cost;
 
-        <View style={styles.rewardContent}>
-          <Text style={styles.rewardTitle}>Vale Presente</Text>
-          <Text style={styles.rewardDescription}>
-            Resgate vouchers para suas lojas favoritas. 
-        </Text>
+          return (
+            <View key={reward.id} style={styles.rewardCard}>
+              <Image source={reward.image} style={styles.rewardImage} />
 
-        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10,justifyContent: "space-between" }}>
-        <Text style={styles.rewardPoints}>800 Pontos</Text>
-        
-        <View style={styles.rewardButton}>
-        <Text style = {styles.rewardCta}>Resgatar</Text>
-        </View>
-        </View>
-        </View>
-        </TouchableOpacity>
+              <View style={styles.rewardContent}>
+                <Text style={styles.rewardTitle}>{reward.title}</Text>
+                <Text style={styles.rewardDescription}>{reward.description}</Text>
 
-        {/*Card 2*/}
-        <TouchableOpacity style={styles.rewardCard}>
-            
-        <Image source={require("../../assets/images/reward1.png")} 
-        style={{ width: "100%", height: 120, borderRadius: 8 }} />
+                <View style={styles.rewardFooter}>
+                  <Text style={styles.rewardPoints}>{reward.cost} Pontos</Text>
 
-        <View style={styles.rewardContent}>
-          <Text style={styles.rewardTitle}>Desconto Reparo</Text>
-          <Text style={styles.rewardDescription}>
-            20% off em assistência técnica autorizada.
-        </Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.rewardButton,
+                      (!canRedeem || isRedeemed) && styles.rewardButtonDisabled,
+                    ]}
+                    activeOpacity={0.9}
+                    disabled={!canRedeem}
+                    onPress={() => handleRedeem(reward.cost, reward.title, reward.id)}
+                  >
+                    {isRedeemed ? (
+                      <View style={styles.redeemedButtonContent}>
+                        <MaterialIcons name="check" size={18} color={COLORS.onPrimary} />
+                        <Text style={[styles.rewardCta, styles.rewardCtaChecked]}>Resgatado</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.rewardCta}>
+                        {canRedeem ? "Resgatar" : "Saldo insuficiente"}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          );
+        })}
+      </View>
+    </ScrollView>
+  );
+}
 
-        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10,justifyContent: "space-between" }}>
-        <Text style={styles.rewardPoints}>1200 Pontos</Text>
-        
-        <View style={styles.rewardButton}>
-        <Text style = {styles.rewardCta}>Resgatar</Text>
-        </View>
-        </View>
-        </View>
-        </TouchableOpacity>
-
-
-        {/*Card 3*/}
-        <TouchableOpacity style={styles.rewardCard}>
-            
-        <Image source={require("../../assets/images/reward2.jpeg")} 
-        style={{ width: "100%", height: 120, borderRadius: 8 }} />
-
-        <View style={styles.rewardContent}>
-          <Text style={styles.rewardTitle}>EcoCloud</Text>
-          <Text style={styles.rewardDescription}>
-            Armazenamento em nuvem carbono neutro.
-        </Text>
-
-        <View style={{ flexDirection: "row", alignItems: "center", marginTop: 10,justifyContent: "space-between" }}>
-        <Text style={styles.rewardPoints}>500 Pontos</Text>
-        
-        <View style={styles.rewardButton}>
-        <Text style = {styles.rewardCta}>Resgatar</Text>
-        </View>
-        </View>
-        </View>
-        </TouchableOpacity>
-
-        {/*Indique um amigo*/}
-
-    
-
-
-        </View>
-   
-        </ScrollView>
-    );
-    }   
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -142,12 +186,19 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
+    header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 18,
+  },
+
   title: {
     fontFamily: "Manrope-Bold",
     fontSize: 32,
     fontWeight: "800", 
     color: COLORS.onSurface,
-    marginBottom: 16,
+   
   },
 
     subtitle: {
@@ -173,7 +224,11 @@ const styles = StyleSheet.create({
   rewardCard: {
     backgroundColor: COLORS.surfaceContainer,
     borderRadius: 10,
-    
+    overflow: "hidden",
+  },
+  rewardImage: {
+    width: "100%",
+    height: 120,
   },
   rewardTitle: {
     fontSize: 20,
@@ -181,11 +236,10 @@ const styles = StyleSheet.create({
     color: COLORS.onSurface,
     marginBottom: 10,
   },
-  rewardPoints:{
+  rewardPoints: {
     fontSize: 18,
     fontFamily: "Manrope-Bold",
     color: COLORS.primary,
-    marginTop: 10,
   },
   rewardDescription: {
     fontSize: 14,
@@ -193,17 +247,35 @@ const styles = StyleSheet.create({
     color: COLORS.onSurface,
     marginBottom: 10,
   },
-    rewardButton: {
+  rewardFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 10,
+  },
+  rewardButton: {
     backgroundColor: COLORS.primary,
-    padding: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
     borderRadius: 12,
     alignItems: "center",
-    
+    justifyContent: "center",
   },
-    rewardCta: {
+  rewardButtonDisabled: {
+    backgroundColor: COLORS.onSurfaceVariant,
+  },
+  redeemedButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  rewardCta: {
     fontSize: 16,
     fontFamily: "Manrope-Bold",
     color: COLORS.background,
+  },
+  rewardCtaChecked: {
+    color: COLORS.onPrimary,
   },
   rewardContent: {
    padding: 12,

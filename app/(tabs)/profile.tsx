@@ -5,9 +5,10 @@ import {
   doc,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   setDoc,
-  where,
+  where
 } from "firebase/firestore";
 import React from "react";
 import {
@@ -21,7 +22,9 @@ import {
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { auth, db } from "../../src/services/firebase";
+import { LevelProgressBar } from "../components/LevelProgressBar";
 import { COLORS } from "../themes";
+import { getLevel } from "../utils/levels";
 
 type AddressForm = {
   cep: string;
@@ -68,6 +71,7 @@ export default function ProfileScreen() {
   const [address, setAddress] = React.useState<AddressForm>(EMPTY_ADDRESS);
   const [profile, setProfile] = React.useState<UserProfile | null>(null);
   const [schedulesCount, setSchedulesCount] = React.useState(0);
+  const [pointsBalance, setPointsBalance] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(true);
   const [saving, setSaving] = React.useState(false);
   const [isEditingAddress, setIsEditingAddress] = React.useState(false);
@@ -98,6 +102,7 @@ export default function ProfileScreen() {
 
       setProfile(data || null);
       setSchedulesCount(schedulesSnapshot.size);
+      setPointsBalance(data?.pointsBalance || 0);
 
       if (data?.address) {
         const loadedAddress = {
@@ -120,6 +125,26 @@ export default function ProfileScreen() {
     }
 
     loadUserAddress();
+  }, [user]);
+
+  // Escuta mudanças de pontos em tempo real
+  React.useEffect(() => {
+    if (!user) return;
+
+    console.log("[PROFILE] Iniciando onSnapshot para pointsBalance");
+
+    const userRef = doc(db, "users", user.uid);
+    const unsubscribe = onSnapshot(userRef, (snapshot) => {
+      const userData = snapshot.data();
+      const balance = userData?.pointsBalance || 0;
+      console.log("[PROFILE] pointsBalance atualizado:", balance);
+      setPointsBalance(balance);
+    });
+
+    return () => {
+      console.log("[PROFILE] Limpando onSnapshot");
+      unsubscribe();
+    };
   }, [user]);
 
   if (!fontsLoaded) {
@@ -250,6 +275,9 @@ export default function ProfileScreen() {
 
      
         </View>
+
+        {/* Nível e Progresso */}
+        <LevelProgressBar levelInfo={getLevel(pointsBalance)} />
 
         <View style={styles.infoCard}>
           <View style={styles.sectionHeader}>

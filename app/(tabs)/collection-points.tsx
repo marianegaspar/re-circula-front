@@ -88,7 +88,7 @@ export default function CollectionPointsScreen() {
             activeOpacity={0.8}
             onPress={() => router.back()}
           >
-            <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
+          <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
           </TouchableOpacity>
 
           <View style={styles.headerText}>
@@ -108,10 +108,12 @@ export default function CollectionPointsScreen() {
 
               })
             }>
+
+              
               <Image source={item.image}
                    style={styles.collectionImage}  />
               <View style={styles.collectionHeader}>
-                
+              
 
               <View style={styles.collectionIcon}>
                 <MaterialIcons

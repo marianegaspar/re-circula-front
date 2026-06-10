@@ -3,11 +3,13 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { useRouter } from "expo-router";
 import {
   collection,
+  doc,
   getDocs,
+  onSnapshot,
   query,
   where,
 } from "firebase/firestore";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Image,
   ScrollView,
@@ -18,7 +20,10 @@ import {
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { auth, db } from "../../src/services/firebase";
+import { LevelProgressBar } from "../components/LevelProgressBar";
 import { COLORS } from "../themes";
+import { getLevel } from "../utils/levels";
+
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -26,12 +31,15 @@ export default function HomeScreen() {
   const user = auth.currentUser;
   const [schedules, setSchedules] = React.useState<any[]>([]);
   const visibleSchedules = schedules.slice(0, 2);
-  const totalPoints = schedules.reduce(
-    (sum, schedule) => sum + Number(schedule.ecoPoints || 0),
-    0
-  );
 
-  React.useEffect(() => {
+  //const totalPoints = schedules.reduce(
+    //(sum, schedule) => sum + Number(schedule.ecoPoints || 0),
+    //0
+ // );
+
+  const [pointsBalance, setPointsBalance] = React.useState<number | null>(null);
+
+  useEffect(() => {
     async function loadSchedules() {
       if (!user) return;
 
@@ -68,6 +76,29 @@ export default function HomeScreen() {
 
     return `Coleta agendada para ${formatDate(schedule.date)} às ${schedule.time}`;
   }
+
+  //para atualizar recompensas
+  React.useEffect(() => {
+  if (!user) return;
+
+  console.log("[HOME] Iniciando onSnapshot para pointsBalance");
+
+  const userRef = doc(db, "users", user.uid);
+
+  const unsubscribe = onSnapshot(userRef, (snapshot) => {
+    const data = snapshot.data();
+
+    if (data) {
+      console.log("[HOME] pointsBalance atualizado:", data.pointsBalance || 0);
+      setPointsBalance(data.pointsBalance || 0);
+    }
+  });
+
+  return () => {
+    console.log("[HOME] Limpando onSnapshot");
+    unsubscribe();
+  };
+}, [user]);
 
 
   if (!fontsLoaded) {
@@ -111,12 +142,21 @@ export default function HomeScreen() {
               Vamos dar o destino correto aos seus eletrônicos hoje?
             </Text>
           </View>
-        </TouchableOpacity>
-
+        </TouchableOpacity>   
        
+        {/* Barra de Progresso de Nível */}
+        {pointsBalance !== null && (
+          <LevelProgressBar levelInfo={getLevel(pointsBalance)} />
+        )}
+
+        <Text style={[styles.title,
+          {fontSize: 16, marginBottom: 16}
+        ]}>
+          O QUE DESEJA FAZER?
+          </Text>
    
           <View style={styles.row}>
-            {/*Pontos de Coleta*/}
+            {/*Pontos de Coleta*/} 
             <TouchableOpacity
               style={styles.smallCard}
               activeOpacity={0.85}
@@ -157,33 +197,8 @@ export default function HomeScreen() {
                 </Text>
               </View>
               </TouchableOpacity>
-          
-        
+    
           </View>
-
-           {/* Bento Grid: Resumo */}
-        <View style={styles.bentoGrid}>
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryColumn}>
-              <View style={styles.summaryIconWrap}>
-                <MaterialIcons
-                  name="stars"
-                  size={22}
-                  color={COLORS.onPrimary}
-                />
-              </View>
-              <Text style={styles.summaryValue}>{totalPoints}</Text>
-              <Text style={styles.summaryLabel}>Pontos</Text>
-            </View>
-            <MaterialIcons
-              name="recycling"
-              size={92}
-              color="rgba(0, 56, 36, 0.12)"
-              style={styles.summaryBgIcon}
-            />
-        
-          </View>
-       
 
         {schedules.length > 0 && (
           <>
@@ -259,8 +274,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-
-        </View>
+        
 
     </ScrollView>
   );
@@ -368,13 +382,15 @@ const styles = StyleSheet.create({
   smallCard: {
     flex: 1,
     backgroundColor: COLORS.surfaceContainer,
+    
   
     borderRadius: 20,
     padding: 20,
     justifyContent: "space-between",
     minHeight: 180,
     borderWidth: 1,
-    borderColor: COLORS.outline + "10",
+    borderColor: "#2ecc8a",
+    
   },
   smallCardValue: { fontSize: 20, color: COLORS.onSurface },
   smallCardLabel: {

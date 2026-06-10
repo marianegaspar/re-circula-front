@@ -2,17 +2,17 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { Link, router } from "expo-router";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import {
-  doc,
-  setDoc
+    doc,
+    setDoc
 } from "firebase/firestore";
 import React, { useState } from "react";
 import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { useAppFonts } from "../hooks/use-App-Fonts";
@@ -141,10 +141,12 @@ await setDoc(
     fullName,
     email,
     address: normalizedAddress,
+    pointsBalance: 0, // ✅ Inicializa a fonte única de verdade
     createdAt: new Date(),
   }
 );
   console.log("FIRESTORE SALVO");
+  console.log("[REGISTER] Novo usuário criado com pointsBalance = 0");
 
     router.replace("/home");
 

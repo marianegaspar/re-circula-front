@@ -3,7 +3,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, increment, updateDoc } from "firebase/firestore";
 import React from "react";
 import {
   ScrollView,
@@ -162,15 +162,16 @@ async function handleConfirmCollection() {
 
     const user = auth.currentUser;
 
-
-  console.log("USER:", user);
-  console.log("ITEMS:", collectionItems);
-  console.log("PARAMS:", params);
+    console.log("[COLETA] USER:", user);
+    console.log("[COLETA] ITEMS:", collectionItems);
+    console.log("[COLETA] PARAMS:", params);
+    console.log("[COLETA] ecoPoints a adicionar:", ecoPoints);
 
     if (!user) {
       return;
     }
 
+    // 1. CRIAR O AGENDAMENTO
     await addDoc(
       collection(db, "schedules"),
       {
@@ -199,6 +200,16 @@ async function handleConfirmCollection() {
       }
     );
 
+    console.log("[COLETA] Agendamento criado com sucesso");
+
+    // 2. ATUALIZAR POINTS BALANCE DO USUÁRIO (FONTE ÚNICA DE VERDADE)
+    const userRef = doc(db, "users", user.uid);
+    await updateDoc(userRef, {
+      pointsBalance: increment(ecoPoints),
+    });
+
+    console.log("[COLETA] pointsBalance atualizado com +", ecoPoints);
+
     // AQUI ELE NAVEGA
     router.push({
       pathname: "/colect/confirmation",
@@ -215,7 +226,7 @@ async function handleConfirmCollection() {
 
   } catch (error) {
 
-    console.log("ERRO AO SALVAR:", error);
+    console.log("[COLETA] ERRO AO SALVAR:", error);
 
   }
 }
