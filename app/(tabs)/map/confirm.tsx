@@ -2,11 +2,11 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useAppFonts } from "../../hooks/use-App-Fonts";
-import { auth } from "../../src/services/firebase";
-import { COLORS } from "../themes";
-import { awardDeliveryPoints, hasBeenAwarded } from "../utils/rewards";
-import { COLLECTION_POINTS } from "./collection-points";
+import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { auth } from "../../../src/services/firebase";
+import { COLORS } from "../../themes";
+import { awardDeliveryPoints, hasBeenAwarded } from "../../utils/rewards";
+import { COLLECTION_POINTS } from "../map/index-map";
 
 export default function CollectionPointConfirm() {
   const { id } = useLocalSearchParams();
@@ -48,7 +48,7 @@ export default function CollectionPointConfirm() {
         if (destination === "home") {
           router.replace("/home");
         } else {
-          router.push("/rewards");
+          router.push("/rewards/how-it-works");
         }
         return;
       }
@@ -69,7 +69,7 @@ export default function CollectionPointConfirm() {
       if (destination === "home") {
         router.replace("/home");
       } else {
-        router.push("/rewards");
+        router.push("/rewards/index-rewards");
       }
     } catch (error) {
       console.log("[COLLECTION-CONFIRM] Erro ao adicionar pontos:", error);
@@ -150,7 +150,7 @@ export default function CollectionPointConfirm() {
             <TouchableOpacity
                 style={styles.primaryButton}
                 activeOpacity={0.9}
-                onPress={() => handleAwardPoints("home")}
+                onPress={() => router.push("/map/index-map")}
                 disabled={isAwardingPoints}
               >
                 <Text style={styles.primaryButtonText}>{isAwardingPoints ? "Processando..." : "Ir para Início"}</Text>
@@ -160,8 +160,8 @@ export default function CollectionPointConfirm() {
         <TouchableOpacity
           style={styles.secondaryButton}
           activeOpacity={0.9}
-          onPress={() => handleAwardPoints("rewards")}
           disabled={isAwardingPoints}
+          onPress={() => router.push("/rewards/index-rewards")}
         >
           <Text style={styles.secondaryButtonText}>{isAwardingPoints ? "Processando..." : "Consultar saldo de pontos"}</Text>
         </TouchableOpacity>

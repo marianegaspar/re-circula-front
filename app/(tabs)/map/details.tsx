@@ -1,8 +1,8 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { COLORS } from "../themes";
-import { COLLECTION_POINTS } from "./collection-points";
+import { COLORS } from "../../themes";
+import { COLLECTION_POINTS } from "./index-map";
 
 export default function CollectionPointDetails() {
   const { id } = useLocalSearchParams();
@@ -27,7 +27,7 @@ export default function CollectionPointDetails() {
         <TouchableOpacity
           style={styles.backButton}
           activeOpacity={0.8}
-          onPress={() => router.push("/collection-points")}
+          onPress={() => router.push("/map/index-map")}
         >
           <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
         </TouchableOpacity>
@@ -90,7 +90,7 @@ export default function CollectionPointDetails() {
               activeOpacity={0.9}
               onPress={() =>
                 router.push({
-                  pathname: "/collection-points-confirm",
+                  pathname: "/(tabs)/map/confirm",
                   params: { id: point.id },
                 })
               }

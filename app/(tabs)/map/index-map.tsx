@@ -9,15 +9,15 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useAppFonts } from "../../hooks/use-App-Fonts";
-import { COLORS } from "../themes";
+import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { COLORS } from "../../themes";
 
 
 export const COLLECTION_POINTS = [
   {
     id: "1",
     title: "EcoHub Central",
-    image: require("../../assets/images/geomap.png"),
+    image: require("../../../assets/images/geomap.png"),
     distance: "1,8 km",
     adress: "Rua das Flores, 123 - Centro",
     openingHours: "Segunda a Sexta • 08h às 18h",
@@ -27,7 +27,7 @@ export const COLLECTION_POINTS = [
   {
     id: "2",
     title: "TechRecycle",
-    image: require("../../assets/images/ecoponto2.jpg"),
+    image: require("../../../assets/images/ecoponto2.jpg"),
     distance: "2,7 km",
     adress: "Av. Brasil, 456 - Jardim América",
     openingHours: "Segunda a Sábado • 09h às 17h",
@@ -37,7 +37,7 @@ export const COLLECTION_POINTS = [
   {
     id: "3",
     title: "Associação Comercial de Santos",
-    image: require("../../assets/images/ecoponto3.webp"),
+    image: require("../../../assets/images/ecoponto3.webp"),
     distance: "3,5 km",
     adress: "Praça Mauá, 100 - Centro",
     openingHours: "Segunda a Sexta • 08h às 18h",
@@ -47,7 +47,7 @@ export const COLLECTION_POINTS = [
   {
     id: "4",
     title: "Centro de Coleta Tech",
-    image: require("../../assets/images/ecoponto1.jpg"),
+    image: require("../../../assets/images/ecoponto1.jpg"),
     distance: "4,1 km",
     
     adress: "Av. Brasil, 456 - Jardim América",
@@ -58,7 +58,7 @@ export const COLLECTION_POINTS = [
   {
     id: "5",
     title: "Reboot Reciclagem",
-    image: require("../../assets/images/ecoponto2.jpg"),
+    image: require("../../../assets/images/ecoponto2.jpg"),
     distance: "5,3 km",
     
     adress: "Rua das Flores, 123 - Centro",
@@ -83,13 +83,7 @@ export default function CollectionPointsScreen() {
     >
       <View style={styles.container}>
         <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            activeOpacity={0.8}
-            onPress={() => router.back()}
-          >
-          <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
-          </TouchableOpacity>
+      
 
           <View style={styles.headerText}>
             <Text style={styles.title}>Pontos de Coleta Disponíveis</Text>
@@ -103,7 +97,7 @@ export default function CollectionPointsScreen() {
             style={styles.collectionItem}
             onPress={() =>
               router.push ({
-                pathname: "/collection-points-details",
+                pathname: "/map/details",
                 params: { id: item.id.toString() }, 
 
               })

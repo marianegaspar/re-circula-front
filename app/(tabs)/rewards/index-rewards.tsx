@@ -12,11 +12,11 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { useAppFonts } from "../../hooks/use-App-Fonts";
-import { auth, db } from "../../src/services/firebase";
-import { LevelProgressBar } from "../components/LevelProgressBar";
-import { COLORS } from "../themes";
-import { getLevel } from "../utils/levels";
+import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { auth, db } from "../../../src/services/firebase";
+import { LevelProgressBar } from "../../components/LevelProgressBar";
+import { COLORS } from "../../themes";
+import { getLevel } from "../../utils/levels";
 
 
 export default function Rewards() {
@@ -36,22 +36,30 @@ export default function Rewards() {
       icon:"🎁",
       title: "Vale Presente",
       description: "Resgate vouchers para suas lojas favoritas.",
-      cost: 800,
+      cost: 200,
      
     },
     {
       id: "repair-discount",
-      icon:"🎁",
+      icon:"🔨",
       title: "Desconto Reparo",
       description: "20% off em assistência técnica autorizada.",
-      cost: 1200,
+      cost: 350,
       
     },
     {
       id: "ecocloud",
-      icon:"🎁",
+      icon:"🌳",
       title: "EcoCloud",
       description: "Armazenamento em nuvem carbono neutro.",
+      cost: 500,
+      
+    },
+      {
+      id: "movie",
+      icon:"🎬",
+      title: "Ingresso de cinema",
+      description: "Um ingresso para qualquer sessão 2D.",
       cost: 500,
       
     },
@@ -118,8 +126,7 @@ export default function Rewards() {
     <ScrollView contentContainerStyle={styles.container}>
        <View style={styles.header}>
       <Text style={styles.title}>Recompensas</Text>
-      <TouchableOpacity onPress={() =>  router.push({
-            pathname: "/how-it-works"})}>
+      <TouchableOpacity style={styles.question} onPress={() => router.push("/rewards/how-it-works")}>
             <MaterialIcons
               name="question-mark"
               size={20}
@@ -144,18 +151,19 @@ export default function Rewards() {
 
           return (
             <View key={reward.id} style={styles.rewardCard}>
-
+                <View style={styles.rewardIcon}>
+                    {reward.icon}
+                                 
+                </View>
               <View style={styles.rewardContent}>
                 <View style={styles.rewardContainer}>
-                  <View style={styles.rewardIcon}>
-                    {reward.icon}
-                    
-                    </View>
+               
                   <View style={styles.rewardColumn}>
                       <Text style={styles.rewardTitle}>{reward.title}</Text>
                       <Text style={styles.rewardDescription}>{reward.description}</Text>
                   </View>
                 </View>
+                
                 <View style={styles.rewardFooter}>
                   <Text style={styles.rewardPoints}>⭐  {reward.cost} Pontos</Text>
 
@@ -203,6 +211,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 18,
   },
+question:{
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.surfaceContainer,
+},
 
   title: {
     fontFamily: "Manrope-Bold",
@@ -236,6 +252,10 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surfaceContainer,
     borderRadius: 10,
     overflow: "hidden",
+    flexDirection:"row",
+    alignItems: "flex-start",
+     padding: 14,
+       gap: 12,
   },
   rewardImage: {
     width: "100%",
@@ -248,7 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   rewardPoints: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "Manrope-Bold",
     color: COLORS.primary,
   },
@@ -295,14 +315,20 @@ const styles = StyleSheet.create({
   }, 
   rewardContainer:{
     flex:1,
-    flexDirection:"row",
+    flexDirection:"column",
     gap:8,
 
   },
   rewardIcon:{
-    borderRadius:16,
-    borderWidth:25,
-   borderColor: COLORS.primary + "10",
+    width: 46,
+  height: 46,
+  borderRadius: 13,
+  backgroundColor: COLORS.primary + "20", // rgba verde 12%
+  alignItems: "center",
+  justifyContent: "center",
+  overflow: "hidden",
+  flexShrink: 0, 
+  marginTop: 12,   
   },
   rewardColumn:{
     flexDirection:"column",

@@ -160,7 +160,7 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.smallCard}
               activeOpacity={0.85}
-              onPress={() => router.push("/collection-points")}
+              onPress={() => router.push("/map/index-map")}
             >
               <View style={styles.cardIconWrap}>
               <Ionicons  

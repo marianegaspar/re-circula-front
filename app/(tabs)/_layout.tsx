@@ -32,6 +32,8 @@ export default function TabLayout() {
           fontFamily: "Manrope-Regular",
           lineHeight: 18,
           paddingBottom: 2,
+   
+          fontSize:9,
         },
       }}
     >
@@ -56,6 +58,17 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="map"
+        options={{
+          title: "MAPA",
+
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons name="explore" size={24} color={color} />
+          ),
+        }}
+      />
+
         <Tabs.Screen
         name="rewards"
         options={{
@@ -72,6 +85,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "PERFIL",
+          
 
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="person" size={24} color={color} />

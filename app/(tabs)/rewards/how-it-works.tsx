@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-import { useAppFonts } from "../../hooks/use-App-Fonts";
-import { COLORS } from "../themes";
+import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { COLORS } from "../../themes";
 
 export default function HowItWorks(){
     const router = useRouter();
@@ -25,8 +25,7 @@ export default function HowItWorks(){
       {/* topbar */}
       <View style={styles.topbar}>
         <TouchableOpacity style={styles.backBtn} 
-        onPress={() =>  router.push({
-            pathname: "/rewards"})}>
+        onPress={() => router.push("/rewards/index-rewards")}>
           <IconArrowLeft size={16} color="#8a9bb0" />
         </TouchableOpacity>
         <Text style={styles.pageTitle}>Como Funciona</Text>
@@ -229,7 +228,7 @@ const styles = StyleSheet.create({
   intro: {
     fontFamily: "Manrope-Regular",
     fontSize: 13,
-    color: "#5a7490",
+    color: COLORS.onSurfaceVariant,
     lineHeight: 20,
   },
 
@@ -268,7 +267,7 @@ const styles = StyleSheet.create({
   stepDesc: {
     fontFamily: "Manrope-Regular",
     fontSize: 12,
-    color: "#5a7490",
+     color: COLORS.onSurfaceVariant,
     marginTop: 2,
   },
   stepBody: {
@@ -317,7 +316,7 @@ const styles = StyleSheet.create({
   bulletText: {
     fontFamily: "Manrope-Regular",
     fontSize: 12,
-    color: "#8a9bb0",
+     color: COLORS.onSurfaceVariant,
     lineHeight: 18,
     flex: 1,
   },
