@@ -285,12 +285,14 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+
     backgroundColor: COLORS.background,
     padding: 20,
   },
 
-  scrollContent: {},
+  scrollContent: {
+    flex:1,
+  },
 
   header: {
     flexDirection: "row",

@@ -251,13 +251,13 @@ export default function ProfileScreen() {
             <Text style={styles.title}>Meu Perfil</Text>
       
           </View>
-     
+
+          <View style={styles.avatar}>
+            <MaterialIcons name="person" size={26} color={COLORS.onPrimary} />
+          </View>
         </View>
 
         <View style={styles.userCard}>
-               <View style={styles.avatar}>
-            <MaterialIcons name="person" size={26} color={COLORS.onPrimary} />
-          </View>
           <Text style={styles.userName}>{user?.displayName || "Usuário"}</Text>
           <Text style={styles.userEmail}>{user?.email || "email não informado"}</Text>
         </View>
