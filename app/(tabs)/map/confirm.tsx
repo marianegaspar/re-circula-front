@@ -4,6 +4,7 @@ import React from "react";
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
 import { auth } from "../../../src/services/firebase";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 import { awardDeliveryPoints, hasBeenAwarded } from "../../utils/rewards";
 import { COLLECTION_POINTS } from "../map/index-map";
@@ -85,10 +86,11 @@ export default function CollectionPointConfirm() {
 
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
           <View style={styles.successBadge}>
                   <View style={styles.successInner}>
                     <MaterialIcons name="check" size={34} color={COLORS.onPrimary} />
@@ -150,7 +152,7 @@ export default function CollectionPointConfirm() {
             <TouchableOpacity
                 style={styles.primaryButton}
                 activeOpacity={0.9}
-                onPress={() => router.push("/map/index-map")}
+                onPress={() => router.push("/map")}
                 disabled={isAwardingPoints}
               >
                 <Text style={styles.primaryButtonText}>{isAwardingPoints ? "Processando..." : "Ir para Início"}</Text>
@@ -165,13 +167,17 @@ export default function CollectionPointConfirm() {
         >
           <Text style={styles.secondaryButtonText}>{isAwardingPoints ? "Processando..." : "Consultar saldo de pontos"}</Text>
         </TouchableOpacity>
-   </View>
+      </WebContainer>
 
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   scrollContent: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
@@ -339,4 +345,3 @@ const styles = StyleSheet.create({
     padding:16,
     }
 });
-

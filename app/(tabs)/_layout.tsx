@@ -15,6 +15,9 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        sceneStyle: {
+          backgroundColor: COLORS.background,
+        },
 
         //cor do icone ativo
         tabBarActiveTintColor: COLORS.primary,
@@ -25,6 +28,7 @@ export default function TabLayout() {
         //fundo da barra
         tabBarStyle: {
           backgroundColor: COLORS.surfaceContainer,
+          borderTopColor: COLORS.surfaceContainer,
           paddingBottom: 6,
           height: 64,
         },

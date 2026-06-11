@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
 import { auth, db } from "../../../src/services/firebase";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
 
@@ -237,7 +238,7 @@ async function handleConfirmCollection() {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         <TouchableOpacity
           style={styles.backButton}
           activeOpacity={0.8}
@@ -454,7 +455,7 @@ async function handleConfirmCollection() {
         >
           <Text style={styles.secondaryButtonText}>Voltar</Text>
         </TouchableOpacity>
-      </View>
+      </WebContainer>
     </ScrollView>
   );
 }

@@ -1,6 +1,7 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 import { COLLECTION_POINTS } from "./index-map";
 
@@ -15,26 +16,28 @@ export default function CollectionPointDetails() {
 
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.wrapper}>
-        <Image
-          source={point.image}
-          style={[styles.collectionImage, { opacity: 0.5 }]}
-        />
+      <WebContainer>
+        <View style={styles.wrapper}>
+          <Image
+            source={point.image}
+            style={[styles.collectionImage, { opacity: 0.5 }]}
+          />
 
-        <TouchableOpacity
-          style={styles.backButton}
-          activeOpacity={0.8}
-          onPress={() => router.push("/map/index-map")}
-        >
-          <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={styles.backButton}
+            activeOpacity={0.8}
+            onPress={() => router.push("/map")}
+          >
+            <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.container}>
-        <Text style={styles.collectionTitle}>{point.title}</Text>
+        <View style={styles.container}>
+          <Text style={styles.collectionTitle}>{point.title}</Text>
 
         <View style={styles.infoRow}>
           <MaterialIcons
@@ -99,12 +102,17 @@ export default function CollectionPointDetails() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+        </View>
+      </WebContainer>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   scrollContent: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
@@ -244,4 +252,3 @@ rewardPoints: {
   },
   
 });
-

@@ -11,7 +11,9 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
+
 
 type CollectionItem = {
   id: string;
@@ -79,7 +81,7 @@ export default function CollectConfirmation() {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         <View style={styles.successBadge}>
           <View style={styles.successInner}>
             <MaterialIcons name="check" size={34} color={COLORS.onPrimary} />
@@ -197,7 +199,7 @@ export default function CollectConfirmation() {
         >
           <Text style={styles.secondaryButtonText}>Ver Detalhes do Pedido</Text>
         </TouchableOpacity>
-      </View>
+      </WebContainer>
     </ScrollView>
   );
 }

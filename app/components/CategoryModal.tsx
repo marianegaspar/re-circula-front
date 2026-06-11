@@ -10,6 +10,7 @@ import {
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "../themes";
+import { WebContainer } from "./WebContainer";
 
 interface Item {
   id: string;
@@ -50,7 +51,7 @@ export default function CategoryModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.container}>
+        <WebContainer style={styles.container}>
           {/* Handle */}
           <View style={styles.handle} />
 
@@ -154,7 +155,7 @@ export default function CategoryModal({
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </WebContainer>
       </View>
     </Modal>
   );

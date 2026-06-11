@@ -16,11 +16,12 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { auth, db } from "../../src/services/firebase";
 import { LevelProgressBar } from "../components/LevelProgressBar";
+import { WebContainer } from "../components/WebContainer";
 import { COLORS } from "../themes";
 import { getLevel } from "../utils/levels";
 
@@ -107,10 +108,11 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.brand}>
@@ -160,7 +162,7 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={styles.smallCard}
               activeOpacity={0.85}
-              onPress={() => router.push("/map/index-map")}
+              onPress={() => router.push("/map")}
             >
               <View style={styles.cardIconWrap}>
               <Ionicons  
@@ -259,7 +261,7 @@ export default function HomeScreen() {
             </View>
           </>
         )}
-        <Text style={styles.title}>Centro de Aprendizado</Text>
+        <Text style={styles.requestTitle2}>Centro de Aprendizado</Text>
 
 
         <View style={styles.infoSection}>
@@ -275,23 +277,25 @@ export default function HomeScreen() {
             </Text>
             </View>
           </View>
-        </View>
-
-        
-
+      </WebContainer>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   container: {
-
     backgroundColor: COLORS.background,
     padding: 20,
+    flexGrow: 1,
   },
 
   scrollContent: {
-    flex:1,
+    flexGrow: 1,
+    backgroundColor: COLORS.background,
   },
 
   header: {
@@ -511,6 +515,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Manrope-Bold",
     marginBottom: 4,
+  },
+    requestTitle2: {
+    color: COLORS.onSurface,
+    fontSize: 18,
+    fontFamily: "Manrope-Bold",
+    marginBottom: 14,
+    marginTop: 14,
   },
   requestSubtitle: {
     color: COLORS.onSurfaceVariant,

@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
 
@@ -78,10 +79,11 @@ export default function CollectionPointsScreen() {
 
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         <View style={styles.header}>
       
 
@@ -145,12 +147,16 @@ export default function CollectionPointsScreen() {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </WebContainer>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   scrollContent: {
     flexGrow: 1,
     backgroundColor: COLORS.background,

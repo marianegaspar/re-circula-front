@@ -17,6 +17,7 @@ import {
 import Svg, { Path } from "react-native-svg";
 import { useAppFonts } from "../hooks/use-App-Fonts";
 import { auth, db } from "../src/services/firebase";
+import { WebContainer } from "./components/WebContainer";
 import { COLORS } from "./themes";
 
 
@@ -188,7 +189,7 @@ await setDoc(
   }
 }
   return (
-    <View style={styles.container}>
+    <WebContainer style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -398,7 +399,7 @@ await setDoc(
           </View>
         </View>
       </ScrollView>
-    </View>
+    </WebContainer>
   );
 }
 

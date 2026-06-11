@@ -8,6 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useAppFonts } from "../hooks/use-App-Fonts";
 import { auth } from "../src/services/firebase";
+import { WebContainer } from "./components/WebContainer";
 import { COLORS } from "./themes";
 
 
@@ -83,7 +84,7 @@ async function entrar() {
 
 
   return (
-    <View style={style.container}>
+    <WebContainer style={style.container}>
       {/* Header */}
       <View style={style.header}>
         <MaterialIcons name="bolt" size={28} color={COLORS.primary} />
@@ -217,7 +218,7 @@ async function entrar() {
           </Link>
         </View>
       </View>
-    </View>
+    </WebContainer>
   );
 }
 

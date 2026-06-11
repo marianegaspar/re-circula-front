@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
 const DROP_OFF_POINTS = [
@@ -44,7 +45,7 @@ export default function ColectMethod() {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         <TouchableOpacity
           style={styles.backButton}
           activeOpacity={0.8}
@@ -151,7 +152,7 @@ export default function ColectMethod() {
             </TouchableOpacity>
           ))}
         </View>
-      </View>
+      </WebContainer>
     </ScrollView>
   );
 }

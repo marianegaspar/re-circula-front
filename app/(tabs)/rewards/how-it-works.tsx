@@ -9,6 +9,7 @@ import {
   View
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
 export default function HowItWorks(){
@@ -20,7 +21,8 @@ export default function HowItWorks(){
       }
 
     return(
-            <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <WebContainer style={styles.container}>
 
       {/* topbar */}
       <View style={styles.topbar}>
@@ -75,7 +77,7 @@ export default function HowItWorks(){
       <TouchableOpacity
         style={styles.ctaCard}
         activeOpacity={0.9}
-        onPress={() => navigation.navigate("Coleta")}
+        onPress={() => router.push("/colect")}
       >
         <View style={styles.ctaBg} />
         <View style={styles.ctaIcon}>
@@ -90,6 +92,7 @@ export default function HowItWorks(){
         </View>
       </TouchableOpacity>
 
+      </WebContainer>
     </ScrollView>
   );
 }
@@ -198,6 +201,14 @@ const bulletColor: Record<Color, object> = {
 /* ─── styles ─── */
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: COLORS.background,
+  },
   container: {
     flexGrow: 1,
     backgroundColor: COLORS.background,

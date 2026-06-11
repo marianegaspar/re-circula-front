@@ -2,7 +2,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React from "react";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useAppFonts } from "../hooks/use-App-Fonts";
 import { COLORS } from "./themes";
 
@@ -23,7 +23,10 @@ export default function OnBoarding() {
 
       {/* Hero Section */}
       <View style={styles.hero}>
-        <Text style={styles.title}>Dê um destino certo aos seus eletrônicos</Text>
+        <Text style={styles.title}>
+          Dê um destino certo aos seus{" "}
+          <Text style={styles.titleHighlight}>eletrônicos</Text>
+        </Text>
         <Text style={styles.subtitle}>
           Conectamos você aos pontos de coleta mais próximos e empresas comprometidas com o descarte responsável.
         </Text>
@@ -89,6 +92,9 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     padding: 24,
     gap: 20,
+    width: "100%",
+  maxWidth: Platform.OS === "web" ? 500 : "100%",
+  alignSelf: "center",
   },
   brand: {
     flexDirection: "row",
@@ -110,6 +116,9 @@ const styles = StyleSheet.create({
     color: COLORS.onSurface,
     lineHeight: 34,
     marginBottom: 12,
+  },
+  titleHighlight: {
+    color: COLORS.primary,
   },
   subtitle: {
     fontFamily: "Manrope-Regular",

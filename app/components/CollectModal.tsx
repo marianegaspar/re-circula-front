@@ -10,6 +10,7 @@ import {
 
 import { MaterialIcons } from "@expo/vector-icons";
 import { COLORS } from "../themes";
+import { WebContainer } from "./WebContainer";
 
 interface SelectedItem {
   id: string;
@@ -43,7 +44,7 @@ export default function MyCollectionModal({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={styles.container}>
+        <WebContainer style={styles.container}>
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
@@ -150,7 +151,7 @@ export default function MyCollectionModal({
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+        </WebContainer>
       </View>
     </Modal>
   );

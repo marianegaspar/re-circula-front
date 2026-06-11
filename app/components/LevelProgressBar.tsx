@@ -15,7 +15,7 @@ export function LevelProgressBar({ levelInfo }: LevelProgressBarProps) {
 
   return (
  <TouchableOpacity
-   onPress={() => router.push("/rewards")}>
+   onPress={() => router.push("/rewards/index-rewards")}>
     <LinearGradient
       colors={["#1a9e65", "#0fd97e"]}
       start={{ x: 0, y: 0 }}

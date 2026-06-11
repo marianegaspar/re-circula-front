@@ -4,7 +4,6 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Dimensions,
   Platform,
   ScrollView,
   StyleSheet,
@@ -14,10 +13,9 @@ import {
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
 import CategoryModal from "../../components/CategoryModal";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
-const { width: screenWidth } = Dimensions.get("window");
-const cardWidth = (screenWidth - 40 - 12) / 2;
 // 1. Interfaces e Tipagens
 type CategoriaId = "branca" | "eletronicos" | "informatica" | "climatizacao";
 
@@ -190,7 +188,7 @@ export default function ColectScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <WebContainer style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.brand}>
@@ -445,7 +443,7 @@ export default function ColectScreen() {
           changeQty(activeModal, itemId, delta);
         }}
       />
-    </View>
+    </WebContainer>
   );
 }
 
@@ -686,7 +684,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   cardCategoria: {
-    width: cardWidth,
+    width: "48.5%",
     padding: 20,
     borderRadius: 16,
     borderWidth: 1,

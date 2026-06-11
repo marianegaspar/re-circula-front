@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
 type SelectedItem = {
@@ -191,7 +192,7 @@ export default function ColectItens() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.container}>
+        <WebContainer style={styles.container}>
           <TouchableOpacity
             style={styles.backButton}
             activeOpacity={0.8}
@@ -340,7 +341,7 @@ export default function ColectItens() {
           >
             <Text style={styles.continueButtonText}>Continuar</Text>
           </TouchableOpacity>
-        </View>
+        </WebContainer>
       </ScrollView>
 
       <Modal

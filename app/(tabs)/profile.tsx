@@ -1,5 +1,6 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { signOut } from "firebase/auth";
 import {
   collection,
   doc,
@@ -22,7 +23,7 @@ import {
 } from "react-native";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { auth, db } from "../../src/services/firebase";
-import { LevelProgressBar } from "../components/LevelProgressBar";
+import { WebContainer } from "../components/WebContainer";
 import { COLORS } from "../themes";
 import { getLevel } from "../utils/levels";
 
@@ -118,7 +119,7 @@ export default function ProfileScreen() {
         setAddress(loadedAddress);
         setIsEditingAddress(!isCompleteAddress(loadedAddress));
       } else {
-        setIsEditingAddress(true);
+        setIsEditingAddress(false);
       }
 
       setLoading(false);
@@ -165,6 +166,11 @@ export default function ProfileScreen() {
       ? `${address.street}, ${address.number} - ${address.neighborhood}`
       : "Complete seu endereço para agilizar a coleta.";
   const memberSince = formatMemberSince(profile?.createdAt);
+  const displayName = profile?.fullName || user?.displayName || "Usuário";
+  const displayEmail = profile?.email || user?.email || "email não informado";
+  const initials = getInitials(displayName);
+  const levelInfo = getLevel(pointsBalance);
+  const impactKg = Math.max(schedulesCount * 0.6, pointsBalance * 0.01);
 
   function updateAddress(field: keyof AddressForm, value: string) {
     setAddress((current) => ({ ...current, [field]: value }));
@@ -240,123 +246,173 @@ export default function ProfileScreen() {
     }
   }
 
+  async function handleSignOut() {
+    await signOut(auth);
+    router.replace("/");
+  }
+
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>Meu Perfil</Text>
-      
-          </View>
+          <Text style={styles.title}>Meu Perfil</Text>
 
-          <View style={styles.avatar}>
-            <MaterialIcons name="person" size={26} color={COLORS.onPrimary} />
-          </View>
+          <TouchableOpacity style={styles.settingsButton} activeOpacity={0.85}>
+            <MaterialIcons name="settings" size={18} color={COLORS.onSurfaceVariant} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.userCard}>
-          <Text style={styles.userName}>{user?.displayName || "Usuário"}</Text>
-          <Text style={styles.userEmail}>{user?.email || "email não informado"}</Text>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>{initials}</Text>
+          </View>
+
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{displayName}</Text>
+            <Text style={styles.userEmail}>{displayEmail}</Text>
+            <View style={styles.memberPill}>
+              <MaterialIcons name="calendar-today" size={10} color={COLORS.onSurfaceVariant} />
+              <Text style={styles.memberPillText}>Desde {memberSince}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.editProfileButton} activeOpacity={0.85}>
+            <MaterialIcons name="edit" size={14} color={COLORS.primary} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.summaryGrid}>
           <View style={styles.summaryCard}>
             <View style={styles.summaryIcon}>
-              <MaterialIcons name="event-available" size={20} color={COLORS.primary} />
+              <MaterialIcons name="arrow-upward" size={16} color={COLORS.primary} />
             </View>
             <Text style={styles.summaryValue}>{schedulesCount}</Text>
             <Text style={styles.summaryLabel}>Solicitações feitas</Text>
           </View>
 
-     
+          <View style={styles.summaryCard}>
+            <View style={[styles.summaryIcon, styles.summaryIconBlue]}>
+              <MaterialIcons name="eco" size={16} color={COLORS.blue} />
+            </View>
+            <Text style={styles.summaryValue}>{impactKg.toFixed(1)}<Text style={styles.summaryUnit}>kg</Text></Text>
+            <Text style={styles.summaryLabel}>Lixo evitado</Text>
+          </View>
         </View>
 
-        {/* Nível e Progresso */}
-        <LevelProgressBar levelInfo={getLevel(pointsBalance)} />
+        <View style={styles.pointsCard}>
+          <View style={styles.pointsGlow} />
+          <View style={styles.pointsHeader}>
+            <View>
+              <Text style={styles.pointsValue}>{pointsBalance}</Text>
+              <Text style={styles.pointsLabel}>pontos acumulados</Text>
+            </View>
+            <View style={styles.levelPill}>
+              <Text style={styles.levelPillText}>
+                {levelInfo.emoji} {levelInfo.name}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.progressRow}>
+            <View style={styles.progressTrack}>
+              <View style={[styles.progressFill, { width: `${Math.min(100, levelInfo.progress)}%` }]} />
+            </View>
+            <Text style={styles.progressText}>
+              {levelInfo.pointsNeeded} pts {">"} {levelInfo.nextLevel?.name || "topo"}
+            </Text>
+          </View>
+        </View>
+
+        {!isAddressComplete && !isEditingAddress ? (
+          <TouchableOpacity
+            style={styles.addressWarningCard}
+            activeOpacity={0.85}
+            onPress={() => setIsEditingAddress(true)}
+          >
+            <MaterialIcons name="warning-amber" size={18} color="#FBBF24" />
+            <View style={styles.addressWarningText}>
+              <Text style={styles.addressWarningTitle}>Endereço não cadastrado</Text>
+              <Text style={styles.addressWarningSubtitle}>
+                Necessário para agendar coletas
+              </Text>
+            </View>
+            <Text style={styles.addressWarningAction}>Adicionar →</Text>
+          </TouchableOpacity>
+        ) : null}
 
         <View style={styles.infoCard}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionIcon}>
-              <MaterialIcons name="badge" size={18} color={COLORS.primary} />
-            </View>
-            <Text style={styles.sectionTitle}>Dados da conta</Text>
-          </View>
+          <Text style={styles.sectionEyebrow}>DADOS DA CONTA</Text>
 
           <View style={styles.infoList}>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Nome</Text>
-              <Text style={styles.infoValue}>
-                {profile?.fullName || user?.displayName || "Não informado"}
-              </Text>
+              <Text style={styles.infoValue}>{displayName}</Text>
             </View>
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>E-mail</Text>
-              <Text style={styles.infoValue}>
-                {profile?.email || user?.email || "Não informado"}
-              </Text>
+              <Text style={styles.infoValue}>{displayEmail}</Text>
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Cliente desde</Text>
-              <Text style={styles.infoValue}>{memberSince}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
+            <TouchableOpacity
+              style={styles.infoRow}
+              activeOpacity={0.85}
+              onPress={() => setIsEditingAddress(true)}
+            >
               <Text style={styles.infoLabel}>Endereço padrão</Text>
-              <Text style={styles.infoValue}>{addressSummary}</Text>
-            </View>
+              <View style={styles.infoValueRow}>
+                <Text style={styles.infoValue}>{isAddressComplete ? addressSummary : "Não cadastrado"}</Text>
+                <Text style={styles.addInlineText}>{isAddressComplete ? "Editar" : "+ Adicionar"}</Text>
+              </View>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.sectionHeader}>
-            <View style={styles.sectionIcon}>
-              <MaterialIcons name="location-on" size={18} color={COLORS.primary} />
-            </View>
-            <Text style={styles.sectionTitle}>Endereço de coleta</Text>
-          </View>
+        {isAddressComplete && !isEditingAddress ? (
+          <View style={styles.addressDisplayCard}>
+            <TouchableOpacity
+              style={styles.editAddressButton}
+              activeOpacity={0.85}
+              onPress={() => {
+                setSuccessMessage("");
+                setIsEditingAddress(true);
+              }}
+            >
+              <MaterialIcons name="edit" size={14} color={COLORS.primary} />
+              <Text style={styles.editAddressButtonText}>Editar</Text>
+            </TouchableOpacity>
 
+            <View style={styles.addressCardIcon}>
+              <MaterialIcons name="home" size={22} color={COLORS.primary} />
+            </View>
+
+            <View style={styles.addressCardContent}>
+              <Text style={styles.addressCardTitle}>
+                {address.street}, {address.number}
+              </Text>
+              <Text style={styles.addressCardText}>
+                {address.neighborhood} - {address.city}/{address.state}
+              </Text>
+              <Text style={styles.addressCardText}>CEP {address.cep}</Text>
+              {address.complement ? (
+                <Text style={styles.addressCardComplement}>
+                  Complemento: {address.complement}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+        ) : null}
+
+        {isEditingAddress ? (
+        <View style={styles.card}>
+          <Text style={styles.sectionEyebrow}>ENDEREÇO DE COLETA</Text>
           {loading ? (
             <View style={styles.loadingBox}>
               <ActivityIndicator color={COLORS.primary} />
-            </View>
-          ) : isAddressComplete && !isEditingAddress ? (
-            <View style={styles.addressCard}>
-              <TouchableOpacity
-                style={styles.editAddressButton}
-                activeOpacity={0.85}
-                onPress={() => {
-                  setSuccessMessage("");
-                  setIsEditingAddress(true);
-                }}
-              >
-                <MaterialIcons name="edit" size={14} color={COLORS.primary} />
-                <Text style={styles.editAddressButtonText}>Editar</Text>
-              </TouchableOpacity>
-
-              <View style={styles.addressCardIcon}>
-                <MaterialIcons name="home" size={24} color={COLORS.primary} />
-              </View>
-
-              <View style={styles.addressCardContent}>
-                <Text style={styles.addressCardTitle}>
-                  {address.street}, {address.number}
-                </Text>
-                <Text style={styles.addressCardText}>
-                  {address.neighborhood} - {address.city}/{address.state}
-                </Text>
-                <Text style={styles.addressCardText}>CEP {address.cep}</Text>
-                {address.complement ? (
-                  <Text style={styles.addressCardComplement}>
-                    Complemento: {address.complement}
-                  </Text>
-                ) : null}
-              </View>
-
             </View>
           ) : (
             <View style={styles.form}>
@@ -516,7 +572,17 @@ export default function ProfileScreen() {
             </View>
           )}
         </View>
-      </View>
+        ) : null}
+
+        <TouchableOpacity
+          style={styles.signOutButton}
+          activeOpacity={0.85}
+          onPress={handleSignOut}
+        >
+          <MaterialIcons name="logout" size={16} color="#FF6B6B" />
+          <Text style={styles.signOutText}>Sair da conta</Text>
+        </TouchableOpacity>
+      </WebContainer>
     </ScrollView>
   );
 }
@@ -534,7 +600,19 @@ function formatMemberSince(createdAt?: UserProfile["createdAt"]) {
   }).format(createdDate);
 }
 
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const first = parts[0]?.[0] || "U";
+  const second = parts.length > 1 ? parts[parts.length - 1][0] : "";
+
+  return `${first}${second}`.toUpperCase();
+}
+
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   scrollContent: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
@@ -542,141 +620,298 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
-    padding: 20,
-    paddingBottom: 32,
+    padding: 22,
+    paddingBottom: 36,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 16,
-    marginBottom: 24,
+    marginBottom: 18,
   },
   title: {
     fontFamily: "Manrope-Bold",
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "800",
-    color: COLORS.onSurface,
-    marginBottom: 8,
+    color: "#F2F6FF",
   },
-  subtitle: {
-    fontFamily: "Manrope-Regular",
-    color: COLORS.onSurfaceVariant,
-    fontSize: 14,
-    lineHeight: 20,
-    maxWidth: 280,
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.primary,
+  settingsButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.surfaceContainer,
+    borderWidth: 1,
+    borderColor: "#223652",
     alignItems: "center",
     justifyContent: "center",
   },
   userCard: {
-    backgroundColor: COLORS.surfaceContainerLow,
-    borderRadius: 16,
-    padding: 18,
+    minHeight: 100,
+    backgroundColor:COLORS.surfaceContainer,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: COLORS.outline + "12",
-    marginBottom: 16,
+    borderColor: "#223652",
+    padding: 18,
+    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+  },
+  avatar: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: COLORS.primaryContainer,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    color: COLORS.onPrimary,
+    fontFamily: "Manrope-Bold",
+    fontSize: 22,
+  },
+  userInfo: {
+    flex: 1,
   },
   userName: {
     fontFamily: "Manrope-Bold",
-    color: COLORS.onSurface,
+    color: "#F2F6FF",
     fontSize: 18,
+    lineHeight: 22,
   },
   userEmail: {
     color: COLORS.onSurfaceVariant,
-    fontSize: 13,
-    marginTop: 4,
+    fontSize: 12,
+    marginTop: 2,
+  },
+  memberPill: {
+    alignSelf: "flex-start",
+    marginTop: 10,
+    borderRadius: 999,
+    backgroundColor:  COLORS.surfaceContainer,
+    borderWidth: 1,
+    borderColor: "#223652",
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  memberPillText: {
+    color: COLORS.onSurfaceVariant,
+    fontFamily: "Manrope-Regular",
+    fontSize: 10,
+  },
+  editProfileButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor:  COLORS.surfaceContainer,
+    borderWidth: 1,
+    borderColor: "#223652",
+    alignItems: "center",
+    justifyContent: "center",
   },
   summaryGrid: {
     flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
+    gap: 10,
+    marginBottom: 12,
   },
   summaryCard: {
     flex: 1,
-    backgroundColor: COLORS.surfaceContainer,
+    minHeight: 106,
+    backgroundColor:  COLORS.surfaceContainer,
     borderRadius: 16,
-    padding: 16,
+    padding: 14,
     borderWidth: 1,
-    borderColor: COLORS.outline + "12",
+    borderColor: "#223652",
+    justifyContent: "space-between",
   },
   summaryIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
+    width: 30,
+    height: 30,
+    borderRadius: 9,
     backgroundColor: COLORS.primary + "18",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 14,
+  },
+  summaryIconBlue: {
+    backgroundColor: COLORS.blue + "18",
   },
   summaryValue: {
-    color: COLORS.onSurface,
+    color: "#F2F6FF",
     fontFamily: "Manrope-Bold",
-    fontSize: 20,
-    marginBottom: 4,
+    fontSize: 22,
+    lineHeight: 24,
+  },
+  summaryUnit: {
+    fontSize: 12,
+    color: COLORS.onSurfaceVariant,
   },
   summaryLabel: {
-    color: COLORS.onSurfaceVariant,
+    color: "#6F839D",
     fontFamily: "Manrope-Regular",
-    fontSize: 12,
+    fontSize: 11,
     lineHeight: 16,
   },
-  infoCard: {
-    backgroundColor: COLORS.surfaceContainerLow,
-    borderRadius: 16,
-    padding: 18,
+  pointsCard: {
+    backgroundColor: "#20C77C",
+    borderRadius: 18,
+    padding: 20,
+    marginBottom: 12,
+    minHeight: 130,
+    overflow: "hidden",
+  },
+  pointsGlow: {
+    position: "absolute",
+    right: -16,
+    bottom: -18,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  pointsHeader: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  pointsValue: {
+    color: "#FFFFFF",
+    fontFamily: "Manrope-Bold",
+    fontSize: 36,
+    lineHeight: 38,
+  },
+  pointsLabel: {
+    color: "rgba(255,255,255,0.86)",
+    fontFamily: "Manrope-Bold",
+    fontSize: 12,
+  },
+  levelPill: {
+    borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+  },
+  levelPillText: {
+    color: "#FFFFFF",
+    fontFamily: "Manrope-Bold",
+    fontSize: 11,
+  },
+  progressRow: {
+    marginTop: 22,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  progressTrack: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "rgba(255,255,255,0.45)",
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 2,
+    backgroundColor: "#FFFFFF",
+  },
+  progressText: {
+    color: "#FFFFFF",
+    fontFamily: "Manrope-Bold",
+    fontSize: 11,
+  },
+  addressWarningCard: {
+    minHeight: 66,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: COLORS.outline + "12",
-    marginBottom: 16,
+    borderColor: "rgba(251,191,36,0.42)",
+    backgroundColor: "rgba(251,191,36,0.08)",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  addressWarningText: {
+    flex: 1,
+  },
+  addressWarningTitle: {
+    color: "#F2F6FF",
+    fontFamily: "Manrope-Bold",
+    fontSize: 13,
+  },
+  addressWarningSubtitle: {
+    color: COLORS.onSurfaceVariant,
+    fontFamily: "Manrope-Regular",
+    fontSize: 11,
+    marginTop: 2,
+  },
+  addressWarningAction: {
+    color: "#FBBF24",
+    fontFamily: "Manrope-Bold",
+    fontSize: 12,
+  },
+  sectionEyebrow: {
+    color: "#526882",
+    fontFamily: "Manrope-Bold",
+    fontSize: 11,
+    letterSpacing: 1,
+    textTransform: "uppercase",
+    marginBottom: 10,
+  },
+  infoCard: {
+    backgroundColor:  COLORS.surfaceContainer,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#223652",
+    marginBottom: 12,
+    overflow: "hidden",
   },
   infoList: {
-    gap: 14,
+    borderTopWidth: 1,
+    borderTopColor: "transparent",
   },
   infoRow: {
-    gap: 4,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderTopWidth: 1,
+    borderTopColor: "#223652",
+    gap: 5,
   },
   infoLabel: {
-    color: COLORS.onSurfaceVariant,
+    color: "#526882",
+    fontFamily: "Manrope-Bold",
     fontSize: 10,
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   infoValue: {
-    color: COLORS.onSurface,
+    color: "#F2F6FF",
     fontFamily: "Manrope-Bold",
     fontSize: 14,
     lineHeight: 20,
+    flex: 1,
+  },
+  infoValueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  addInlineText: {
+    color: COLORS.primary,
+    fontFamily: "Manrope-Bold",
+    fontSize: 12,
   },
   card: {
     backgroundColor: COLORS.surfaceContainer,
     borderRadius: 16,
-    padding: 18,
+    padding: 16,
     borderWidth: 1,
-    borderColor: COLORS.outline + "12",
-  },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 18,
-  },
-  sectionIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: COLORS.primary + "18",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  sectionTitle: {
-    fontFamily: "Manrope-Bold",
-    color: COLORS.onSurface,
-    fontSize: 16,
+    borderColor: "#223652",
+    marginBottom: 12,
   },
   loadingBox: {
     height: 180,
@@ -706,17 +941,18 @@ const styles = StyleSheet.create({
     width: 78,
   },
   label: {
-    color: COLORS.onSurfaceVariant,
+    color: "#6F839D",
+    fontFamily: "Manrope-Bold",
     fontSize: 10,
     letterSpacing: 1.2,
     paddingLeft: 4,
   },
   input: {
-    backgroundColor: COLORS.surfaceContainerLowest,
-    borderRadius: 14,
+    backgroundColor: "#0E1A2D",
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: COLORS.outline + "22",
-    color: COLORS.onSurface,
+    borderColor: "#223652",
+    color: "#F2F6FF",
     padding: 14,
   },
   inputError: {
@@ -739,7 +975,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     height: 54,
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
     flexDirection: "row",
     alignItems: "center",
@@ -755,16 +991,17 @@ const styles = StyleSheet.create({
     fontFamily: "Manrope-Bold",
     fontSize: 15,
   },
-  addressCard: {
-    backgroundColor: COLORS.surfaceContainerLow,
+  addressDisplayCard: {
+    backgroundColor: "#132238",
     borderRadius: 16,
     padding: 16,
     paddingTop: 18,
     paddingRight: 82,
     borderWidth: 1,
-    borderColor: COLORS.primary + "24",
+    borderColor: "#223652",
     gap: 14,
     position: "relative",
+    marginBottom: 12,
   },
   addressCardIcon: {
     width: 44,
@@ -778,10 +1015,10 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   addressCardTitle: {
-    color: COLORS.onSurface,
+    color: "#F2F6FF",
     fontFamily: "Manrope-Bold",
-    fontSize: 18,
-    lineHeight: 24,
+    fontSize: 16,
+    lineHeight: 22,
   },
   addressCardText: {
     color: COLORS.onSurfaceVariant,
@@ -815,12 +1052,28 @@ const styles = StyleSheet.create({
     height: 46,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: COLORS.outline + "22",
+    borderColor: "#223652",
     alignItems: "center",
     justifyContent: "center",
   },
   cancelEditButtonText: {
-    color: COLORS.onSurface,
+    color: "#F2F6FF",
+    fontFamily: "Manrope-Bold",
+    fontSize: 14,
+  },
+  signOutButton: {
+    height: 56,
+    borderRadius: 14,
+    backgroundColor: "#132238",
+    borderWidth: 1,
+    borderColor: "#223652",
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
+    gap: 8,
+  },
+  signOutText: {
+    color: "#FF6B6B",
     fontFamily: "Manrope-Bold",
     fontSize: 14,
   },

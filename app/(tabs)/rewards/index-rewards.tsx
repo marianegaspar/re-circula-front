@@ -15,6 +15,7 @@ import {
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
 import { auth, db } from "../../../src/services/firebase";
 import { LevelProgressBar } from "../../components/LevelProgressBar";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 import { getLevel } from "../../utils/levels";
 
@@ -123,7 +124,8 @@ export default function Rewards() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+      <WebContainer style={styles.container}>
        <View style={styles.header}>
       <Text style={styles.title}>Recompensas</Text>
       <TouchableOpacity style={styles.question} onPress={() => router.push("/rewards/how-it-works")}>
@@ -194,11 +196,20 @@ export default function Rewards() {
         })}
       </View>
       
+      </WebContainer>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: COLORS.background,
+  },
   container: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
@@ -373,4 +384,3 @@ question:{
   },
   summaryBgIcon: { position: "absolute", bottom: -20, right: -8 },
 });              
-

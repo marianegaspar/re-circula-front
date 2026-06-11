@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
+import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 
 type SelectedItem = {
@@ -122,10 +123,11 @@ export default function ColectSchedule() {
 
   return (
     <ScrollView
+      style={styles.scrollView}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.container}>
+      <WebContainer style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.brand}>
@@ -327,18 +329,25 @@ export default function ColectSchedule() {
             <Text style={styles.btnPrincipalTexto}>Continuar</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </WebContainer>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
     padding: 20,
   },
-  scrollContent: {},
+  scrollContent: {
+    flexGrow: 1,
+    backgroundColor: COLORS.background,
+  },
 
   containerHeader: {
     flexDirection: "row",
