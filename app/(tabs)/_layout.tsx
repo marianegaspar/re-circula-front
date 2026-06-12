@@ -1,11 +1,12 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import React from "react";
 import { useAppFonts } from "../../hooks/use-App-Fonts";
 import { COLORS } from "../themes";
 
 export default function TabLayout() {
   const { fontsLoaded } = useAppFonts();
+  const router = useRouter();
 
   if (!fontsLoaded) {
     return null;
@@ -53,8 +54,15 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="colect"
+        listeners={{
+          tabPress: (event) => {
+            event.preventDefault();
+            router.replace("/colect");
+          },
+        }}
         options={{
           title: "COLETA",
+          popToTopOnBlur: true,
 
           tabBarIcon: ({ color }) => (
             <MaterialIcons name="recycling" size={24} color={color} />
@@ -99,6 +107,13 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="collection-points"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
+        name="requests-history"
         options={{
           href: null,
         }}

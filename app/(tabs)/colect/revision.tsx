@@ -89,6 +89,7 @@ function formatPickupAddress(address: Address | null) {
 export default function ColectRevision() {
   const router = useRouter();
   const params = useLocalSearchParams<{
+    mode?: string;
     selectedItems?: string;
     deliveryType?: string;
     date?: string;
@@ -126,6 +127,7 @@ export default function ColectRevision() {
   const impactKg = (totalItems * 0.6).toFixed(1);
   const ecoPoints = totalItems * 112 + 2;
   const isDropOff = params.deliveryType === "dropoff";
+  const isDetailsMode = params.mode === "details";
   const pickupAddressText = formatPickupAddress(pickupAddress);
 
   React.useEffect(() => {
@@ -247,35 +249,40 @@ async function handleConfirmCollection() {
           <MaterialIcons name="arrow-back" size={24} color={COLORS.onSurface} />
         </TouchableOpacity>
 
-        <View style={styles.stepContainer}>
-          <View style={styles.stepLine} />
+        {!isDetailsMode ? (
+          <View style={styles.stepContainer}>
+            <View style={styles.stepLine} />
 
-          <View style={styles.stepWrapper}>
-            <View style={styles.stepDot}>
-              <Text style={styles.stepDotText}>1</Text>
+            <View style={styles.stepWrapper}>
+              <View style={styles.stepDot}>
+                <Text style={styles.stepDotText}>1</Text>
+              </View>
+              <Text style={styles.stepLabel}>Itens</Text>
             </View>
-            <Text style={styles.stepLabel}>Itens</Text>
-          </View>
 
-          <View style={styles.stepWrapper}>
-            <View style={styles.stepDot}>
-              <Text style={styles.stepDotText}>2</Text>
+            <View style={styles.stepWrapper}>
+              <View style={styles.stepDot}>
+                <Text style={styles.stepDotText}>2</Text>
+              </View>
+              <Text style={styles.stepLabel}>Data</Text>
             </View>
-            <Text style={styles.stepLabel}>Data</Text>
-          </View>
 
-          <View style={styles.stepWrapper}>
-            <View style={[styles.stepDot, styles.stepDotActive]}>
-              <Text style={styles.stepDotTextActive}>3</Text>
+            <View style={styles.stepWrapper}>
+              <View style={[styles.stepDot, styles.stepDotActive]}>
+                <Text style={styles.stepDotTextActive}>3</Text>
+              </View>
+              <Text style={[styles.stepLabel, styles.stepLabelActive]}>Confirma</Text>
             </View>
-            <Text style={[styles.stepLabel, styles.stepLabelActive]}>Confirma</Text>
           </View>
-        </View>
+        ) : null}
 
-        <Text style={styles.title}>Revisão do Pedido</Text>
+        <Text style={styles.title}>
+          {isDetailsMode ? "Detalhes do Pedido" : "Revisão do Pedido"}
+        </Text>
         <Text style={styles.subtitle}>
-          Quase lá. Verifique os detalhes do descarte e confirme o circuito de
-          reciclagem.
+          {isDetailsMode
+            ? "Confira as informações do descarte que já foi confirmado."
+            : "Quase lá. Verifique os detalhes do descarte e confirme o circuito de reciclagem."}
         </Text>
 
         <View style={styles.panel}>
@@ -292,17 +299,19 @@ async function handleConfirmCollection() {
                 <Text style={styles.sectionTitle}>Itens Selecionados</Text>
               </View>
 
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() =>
-                  router.push({
-                    pathname: "/colect/itens",
-                    params: { selectedItems: JSON.stringify(collectionItems) },
-                  })
-                }
-              >
-                <Text style={styles.editText}>EDITAR</Text>
-              </TouchableOpacity>
+              {!isDetailsMode ? (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/colect/itens",
+                      params: { selectedItems: JSON.stringify(collectionItems) },
+                    })
+                  }
+                >
+                  <Text style={styles.editText}>EDITAR</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
 
             <View style={styles.itemsGroup}>
@@ -389,12 +398,14 @@ async function handleConfirmCollection() {
                   <Text style={styles.sectionTitle}>Endereço de coleta</Text>
                 </View>
 
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => router.push("/profile")}
-                >
-                  <Text style={styles.editText}>EDITAR</Text>
-                </TouchableOpacity>
+                {!isDetailsMode ? (
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => router.push("/profile")}
+                  >
+                    <Text style={styles.editText}>EDITAR</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
 
               <Text style={styles.addressValue}>{pickupAddressText}</Text>
@@ -433,20 +444,18 @@ async function handleConfirmCollection() {
 
 
 
-        <TouchableOpacity
-        
-    style={styles.confirmButton}
-          activeOpacity={0.9}
-          onPress={() => handleConfirmCollection()    
-            
-          }
-  
-        >
-          <Text style={styles.confirmButtonText}>
-            {isDropOff ? "Confirmar Entrega" : "Confirmar Coleta"}
-          </Text>
-          <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />
-        </TouchableOpacity>
+        {!isDetailsMode ? (
+          <TouchableOpacity
+            style={styles.confirmButton}
+            activeOpacity={0.9}
+            onPress={() => handleConfirmCollection()}
+          >
+            <Text style={styles.confirmButtonText}>
+              {isDropOff ? "Confirmar Entrega" : "Confirmar Coleta"}
+            </Text>
+            <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />
+          </TouchableOpacity>
+        ) : null}
 
         <TouchableOpacity
           style={styles.secondaryButton}

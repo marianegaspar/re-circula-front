@@ -53,6 +53,7 @@ export default function CollectConfirmation() {
     deliveryType?: string;
     date?: string;
     time?: string;
+    pointId?: string;
     pointName?: string;
     pointAddress?: string;
     pointHours?: string;
@@ -70,6 +71,13 @@ export default function CollectConfirmation() {
   const totalItems = collectionItems.reduce((sum, item) => sum + item.quantity, 0);
   const ecoPoints = totalItems * 112 + 2;
   const isDropOff = params.deliveryType === "dropoff";
+
+  function handleGoHome() {
+    router.dismissTo("/colect");
+    setTimeout(() => {
+      router.replace("/home");
+    }, 0);
+  }
 
   if (!fontsLoaded) {
     return null;
@@ -173,7 +181,7 @@ export default function CollectConfirmation() {
         <TouchableOpacity
           style={styles.primaryButton}
           activeOpacity={0.9}
-          onPress={() => router.replace("/home")}
+          onPress={handleGoHome}
         >
           <Text style={styles.primaryButtonText}>Ir para Início</Text>
           <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />
@@ -186,10 +194,12 @@ export default function CollectConfirmation() {
             router.push({
               pathname: "/colect/revision",
               params: {
+                mode: "details",
                 selectedItems: JSON.stringify(collectionItems),
                 deliveryType: isDropOff ? "dropoff" : "pickup",
                 date: params.date || "",
                 time: params.time || "",
+                pointId: params.pointId || "",
                 pointName: params.pointName || "",
                 pointAddress: params.pointAddress || "",
                 pointHours: params.pointHours || "",

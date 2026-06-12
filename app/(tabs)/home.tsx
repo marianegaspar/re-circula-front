@@ -185,7 +185,7 @@ export default function HomeScreen() {
                  borderColor: "#2ecc8a",
               }]}
               activeOpacity={0.85}
-              onPress={() => router.push("/colect")}
+              onPress={() => router.replace("/colect")}
             >   
             <View style={styles.cardIconWrap}>
               <MaterialCommunityIcons
@@ -210,9 +210,11 @@ export default function HomeScreen() {
             {/* Minhas solicitações */}
             <View style={styles.requestsHeader}>
               <Text style={styles.requestsTitle}>Minhas Solicitações</Text>
-              <TouchableOpacity>
-                {
-                /*<Text style={styles.requestsLink}>Ver histórico</Text> */ }
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => router.push("/requests-history")}
+              >
+                <Text style={styles.requestsLink}>Ver histórico</Text>
               </TouchableOpacity>
             </View>
 
