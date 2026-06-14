@@ -68,9 +68,8 @@ export default function CollectConfirmation() {
     }
   }, [params.selectedItems]);
 
-  const totalItems = collectionItems.reduce((sum, item) => sum + item.quantity, 0);
-  const ecoPoints = totalItems * 112 + 2;
   const isDropOff = params.deliveryType === "dropoff";
+  const ecoPoints = isDropOff ? 50 : 80;
 
   function handleGoHome() {
     router.dismissTo("/colect");

@@ -7,7 +7,6 @@ import { auth } from "../../../src/services/firebase";
 import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 import { awardDeliveryPoints, hasBeenAwarded } from "../../utils/rewards";
-import { COLLECTION_POINTS } from "../map/index-map";
 
 export default function CollectionPointConfirm() {
   const { id } = useLocalSearchParams();
@@ -15,11 +14,6 @@ export default function CollectionPointConfirm() {
   const { fontsLoaded } = useAppFonts();
   const user = auth.currentUser;
   const [isAwardingPoints, setIsAwardingPoints] = React.useState(false);
-
-  const point = React.useMemo(
-    () => COLLECTION_POINTS.find((item) => item.id === id),
-    [id]
-  );
 
   const handleAwardPoints = async (destination: string) => {
     if (!user) {
@@ -152,7 +146,7 @@ export default function CollectionPointConfirm() {
             <TouchableOpacity
                 style={styles.primaryButton}
                 activeOpacity={0.9}
-                onPress={() => router.push("/map")}
+                onPress={() => handleAwardPoints("home")}
                 disabled={isAwardingPoints}
               >
                 <Text style={styles.primaryButtonText}>{isAwardingPoints ? "Processando..." : "Ir para Início"}</Text>
@@ -163,7 +157,7 @@ export default function CollectionPointConfirm() {
           style={styles.secondaryButton}
           activeOpacity={0.9}
           disabled={isAwardingPoints}
-          onPress={() => router.push("/rewards/index-rewards")}
+          onPress={() => handleAwardPoints("rewards")}
         >
           <Text style={styles.secondaryButtonText}>{isAwardingPoints ? "Processando..." : "Consultar saldo de pontos"}</Text>
         </TouchableOpacity>

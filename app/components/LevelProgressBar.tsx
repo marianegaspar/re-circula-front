@@ -10,6 +10,9 @@ interface LevelProgressBarProps {
 
 export function LevelProgressBar({ levelInfo }: LevelProgressBarProps) {
   const progressPercent = Math.min(100, levelInfo.progress);
+  const nextLevelText = levelInfo.nextLevel
+    ? `${levelInfo.pointsNeeded.toLocaleString()} pts -> ${levelInfo.nextLevel.name}`
+    : "Nivel maximo alcancado";
 
   const router = useRouter();
 
@@ -26,31 +29,27 @@ export function LevelProgressBar({ levelInfo }: LevelProgressBarProps) {
       <View style={styles.bgCircle1} />
       <View style={styles.bgCircle2} />
 
-      {/* Header — pontos + badge de nível */}
       <View style={styles.headerRow}>
-        <View>
+        <View style={styles.pointsBlock}>
           <Text style={styles.points}>
             {levelInfo.currentPoints.toLocaleString()}
           </Text>
-          <Text style={styles.pointsLabel}>pontos</Text>
+          <Text style={styles.pointsLabel}>ecopontos disponíveis</Text>
         </View>
-        <View style={styles.levelBadge}>
-          <Text style={styles.levelBadgeText}>
-            🏆 {levelInfo.name}
-          </Text>
-        </View>
-      </View>
 
-      {/* Barra de progresso + próximo nível */}
-      <View style={styles.barRow}>
-        <View style={styles.progressBar}>
-          <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+        <View style={styles.levelBlock}>
+          <View style={styles.levelBadge}>
+            <Text style={styles.levelBadgeText}>
+              {levelInfo.emoji} {levelInfo.name}
+            </Text>
+          </View>
+
+          <View style={styles.progressBar}>
+            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+          </View>
+
+          <Text style={styles.nextLabel}>{nextLevelText}</Text>
         </View>
-        {levelInfo.nextLevel && (
-          <Text style={styles.nextLabel}>
-            {levelInfo.pointsNeeded?.toLocaleString()} pts → {levelInfo.nextLevel.name}
-          </Text>
-        )}
       </View>
     </LinearGradient>
     </TouchableOpacity>
@@ -63,7 +62,6 @@ const styles = StyleSheet.create({
     padding: 20,
     marginBottom: 16,
     overflow: "hidden",
-    gap: 16,
   },
   bgCircle1: {
     position: "absolute",
@@ -86,7 +84,11 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
+    gap: 14,
+  },
+  pointsBlock: {
+    flex: 1,
   },
   points: {
     fontFamily: "Manrope-Bold",
@@ -98,9 +100,14 @@ const styles = StyleSheet.create({
   },
   pointsLabel: {
     fontFamily: "Manrope-Regular",
-    fontSize: 12,
-    color: "rgba(255,255,255,0.7)",
+    fontSize: 11,
+    color: "rgba(255,255,255,0.82)",
     marginTop: 3,
+  },
+  levelBlock: {
+    flex: 1,
+    alignItems: "flex-start",
+    gap: 6,
   },
   levelBadge: {
     backgroundColor: "rgba(255,255,255,0.2)",
@@ -113,9 +120,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "600",
     color: "#fff",
-  },
-  barRow: {
-    gap: 6,
   },
   progressBar: {
     width: "100%",
@@ -132,7 +136,6 @@ const styles = StyleSheet.create({
   nextLabel: {
     fontFamily: "Manrope-Regular",
     fontSize: 11,
-    color: "rgba(255,255,255,0.75)",
-    textAlign: "right",
+    color: "rgba(255,255,255,0.85)",
   },
 });

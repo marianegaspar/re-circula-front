@@ -123,10 +123,10 @@ export default function ColectRevision() {
     }, {});
   }, [collectionItems]);
 
+  const isDropOff = params.deliveryType === "dropoff";
   const totalItems = collectionItems.reduce((sum, item) => sum + item.quantity, 0);
   const impactKg = (totalItems * 0.6).toFixed(1);
-  const ecoPoints = totalItems * 112 + 2;
-  const isDropOff = params.deliveryType === "dropoff";
+  const ecoPoints = isDropOff ? 50 : 80;
   const isDetailsMode = params.mode === "details";
   const pickupAddressText = formatPickupAddress(pickupAddress);
 

@@ -20,7 +20,7 @@ export enum RewardStatus {
  */
 export enum RewardType {
   COLLECTION_POINT_DELIVERY = "collection_point_delivery", // Entrega em ponto (50 pontos)
-  HOME_PICKUP = "home_pickup", // Coleta domiciliar (baseada em ecoPoints)
+  HOME_PICKUP = "home_pickup", // Coleta domiciliar (80 pontos)
 }
 
 /**

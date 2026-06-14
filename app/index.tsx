@@ -33,38 +33,52 @@ export default function OnBoarding() {
       </View>
 
       {/* Feature Card (Simples) */}
-      <View style={styles.card}>
-        <View style={styles.cardIconWrap}>
+      <View style={[styles.card, styles.mapCard]}>
+        <View style={[styles.cardIconWrap, styles.mapIconWrap]}>
           <Ionicons name="location-outline" size={24} color={COLORS.tertiary} />
         </View>
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>Encontre pontos de descarte</Text>
+          <View style={styles.cardTitleRow}>
+            <Text style={styles.cardTitle}>Encontre pontos de descarte</Text>
+            <View style={[styles.pointsBadge, styles.greenBadge]}>
+              <Text style={[styles.pointsBadgeText, styles.greenBadgeText]}>+50 pts</Text>
+            </View>
+          </View>
           <Text style={styles.cardDesc}>Visualize no mapa as cooperativas mais próximas de você.</Text>
         </View>
       </View>
 
          {/* Feature Card (Simples) */}
-      <View style={styles.card}>
-        <View style={styles.cardIconWrap}>
-          <MaterialIcons name="local-shipping" size={28} color={COLORS.primary} />
+      <View style={[styles.card, styles.collectCard]}>
+        <View style={[styles.cardIconWrap, styles.collectIconWrap]}>
+          <MaterialIcons name="local-shipping" size={26} color={COLORS.blue} />
         </View>
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>Agende sua coleta</Text>
-          <Text style={styles.cardDesc}>Escolha levar até o ponto ou agendar a retirada com nossos parceiros logísticos.</Text>
+          <View style={styles.cardTitleRow}>
+            <Text style={styles.cardTitle}>Agende sua coleta</Text>
+            <View style={[styles.pointsBadge, styles.blueBadge]}>
+              <Text style={[styles.pointsBadgeText, styles.blueBadgeText]}>+80 pts</Text>
+            </View>
+          </View>
+          <Text style={styles.cardDesc}>Leve ao ponto ou agende a retirada com nossos parceiros logísticos.</Text>
         </View>
       </View>
 
      {/* Feature Card (Simples) */}
-      <View style={styles.card}>
-        <View style={styles.cardIconWrap}>
-         <MaterialIcons name="star-outline" size={28} color={COLORS.primary} />
+      <View style={[styles.card, styles.rewardCard]}>
+        <View style={[styles.cardIconWrap, styles.rewardIconWrap]}>
+         <MaterialIcons name="star-outline" size={28} color="#c084fc" />
         </View>
         <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>Ganhe recompensas</Text>
+          <View style={styles.cardTitleRow}>
+            <Text style={styles.cardTitle}>Ganhe recompensas</Text>
+            <View style={[styles.pointsBadge, styles.levelBadge]}>
+              <Text style={[styles.pointsBadgeText, styles.levelBadgeText]}>🏆 níveis</Text>
+            </View>
+          </View>
           <Text style={styles.cardDesc}>
-            Transforme seu compromisso com o planeta em benefícios reais.
-            Acumule créditos a cada descarte consciente e troque por descontos,
-            produtos e serviços de parceiros sustentáveis.</Text>
+            Troque ecopontos por descontos, produtos e serviços sustentáveis.
+          </Text>
         </View>
       </View>
 
@@ -129,34 +143,91 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
     backgroundColor: COLORS.surfaceContainerLow || "#162230", // Fallback caso não exista no theme
-    padding: 20,
+    padding: 14,
     borderRadius: 20,
-    alignItems: "center",
-    gap: 16,
+    alignItems: "flex-start",
+    gap: 12,
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.05)",
   },
+  mapCard: {
+    backgroundColor: "rgba(12, 55, 52, 0.45)",
+    borderColor: "rgba(78, 222, 163, 0.22)",
+  },
+  collectCard: {
+    backgroundColor: "rgba(20, 45, 72, 0.45)",
+    borderColor: "rgba(79, 163, 232, 0.22)",
+  },
+  rewardCard: {
+    backgroundColor: "rgba(45, 38, 72, 0.45)",
+    borderColor: "rgba(192, 132, 252, 0.22)",
+  },
   cardIconWrap: {
-    width: 50,
-    height: 50,
-    borderRadius: 15,
+    width: 42,
+    height: 42,
+    borderRadius: 13,
     backgroundColor: "rgba(78, 222, 163, 0.1)",
     alignItems: "center",
     justifyContent: "center",
   },
+  mapIconWrap: {
+    backgroundColor: "rgba(78, 222, 163, 0.12)",
+  },
+  collectIconWrap: {
+    backgroundColor: "rgba(79, 163, 232, 0.12)",
+  },
+  rewardIconWrap: {
+    backgroundColor: "rgba(192, 132, 252, 0.14)",
+  },
   cardContent: {
     flex: 1,
   },
+  cardTitleRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: 10,
+  },
   cardTitle: {
+    flex: 1,
     fontFamily: "Manrope-Bold",
-    fontSize: 16,
+    fontSize: 14,
     color: COLORS.onSurface,
+    lineHeight: 18,
   },
   cardDesc: {
     fontFamily: "Manrope-Regular",
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.onSurfaceVariant,
     marginTop: 4,
+    lineHeight: 18,
+  },
+  pointsBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  pointsBadgeText: {
+    fontFamily: "Manrope-Bold",
+    fontSize: 11,
+  },
+  greenBadge: {
+    backgroundColor: "rgba(78, 222, 163, 0.14)",
+  },
+  greenBadgeText: {
+    color: COLORS.primary,
+  },
+  blueBadge: {
+    backgroundColor: "rgba(79, 163, 232, 0.14)",
+  },
+  blueBadgeText: {
+    color: COLORS.blue,
+  },
+  levelBadge: {
+    backgroundColor: "rgba(192, 132, 252, 0.16)",
+  },
+  levelBadgeText: {
+    color: "#d8b4fe",
   },
   footer: {
     marginTop: "auto", // Empurra o botão para o final
