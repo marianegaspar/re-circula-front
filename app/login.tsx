@@ -189,11 +189,7 @@ async function entrar() {
               <Text style={style.submitButtonText}>Entrar</Text>
             </LinearGradient>
           </TouchableOpacity>
-            <Text style={[style.footerText,
-              {marginTop:12,}
-            ]}>Conta de Teste: usuario@teste.com / 
-              senha: teste123
-            </Text>
+      
         </View>
         {/* Divider */}
         <View style={style.dividerContainer}>
