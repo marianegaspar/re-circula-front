@@ -1,4 +1,4 @@
-import { IconArrowLeft, IconArrowRight } from "@tabler/icons-react-native";
+import { IconArrowLeft } from "@tabler/icons-react-native";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -56,7 +56,7 @@ export default function HowItWorks(){
         title="Agende uma coleta"
         desc="Receba em casa, sem sair de onde você está"
       >
-        <Highlight color="blue" emoji="🚛" value="+100 pts" label="por coleta domiciliar concluída" />
+        <Highlight color="blue" emoji="🚛" value="+80 pts" label="por coleta domiciliar concluída" />
         <Bullet color="blue" text="Pontos calculados pelo volume e tipo de material" />
         <Bullet color="blue" text="Cupons especiais após confirmação" />
       </StepCard>
@@ -72,25 +72,6 @@ export default function HowItWorks(){
         <Bullet color="purple" text="Troque pontos por vouchers, descontos e doações" />
         <Bullet color="purple" text="Acompanhe o progresso na barra de nível" />
       </StepCard>
-
-      {/* cta */}
-      <TouchableOpacity
-        style={styles.ctaCard}
-        activeOpacity={0.9}
-        onPress={() => router.push("/colect")}
-      >
-        <View style={styles.ctaBg} />
-        <View style={styles.ctaIcon}>
-          <Text style={styles.ctaEmoji}>♻️</Text>
-        </View>
-        <View style={styles.ctaText}>
-          <Text style={styles.ctaTitle}>Pronta para começar?</Text>
-          <Text style={styles.ctaSub}>Encontre um ecoponto perto de você agora</Text>
-        </View>
-        <View style={styles.ctaArrow}>
-          <IconArrowRight size={14} color="#fff" />
-        </View>
-      </TouchableOpacity>
 
       </WebContainer>
     </ScrollView>
@@ -132,7 +113,7 @@ function Highlight({ color, emoji, value, label }: {
   return (
     <View style={[styles.highlight, highlightBg[color]]}>
       <Text style={styles.highlightEmoji}>{emoji}</Text>
-      <View>
+      <View style={styles.highlightText}>
         <Text style={[styles.highlightValue, highlightColor[color]]}>{value}</Text>
         <Text style={styles.highlightLabel}>{label}</Text>
       </View>
@@ -212,7 +193,8 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: COLORS.background,
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     gap: 10,
   },
   topbar: {
@@ -298,11 +280,14 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   highlightEmoji: { fontSize: 22 },
+  highlightText: {
+    flex: 1,
+    minWidth: 0,
+  },
   highlightValue: {
     fontFamily: "Manrope-Bold",
     fontSize: 22,
     fontWeight: "600",
-    letterSpacing: -1,
     lineHeight: 24,
   },
   highlightLabel: {
@@ -335,10 +320,14 @@ const styles = StyleSheet.create({
   // levels strip
   levelsStrip: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 5,
   },
   levelPill: {
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 1,
+    flexBasis: 88,
+    minWidth: 0,
     backgroundColor: "#0f1923",
     borderWidth: 0.5,
     borderColor: "#1e3045",
@@ -354,53 +343,4 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // cta
-  ctaCard: {
-    backgroundColor: "#1a9e65",
-    borderRadius: 18,
-    padding: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    overflow: "hidden",
-    position: "relative",
-  },
-  ctaBg: {
-    position: "absolute",
-    width: 80, height: 80,
-    borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.07)",
-    top: -20, right: -20,
-  },
-  ctaIcon: {
-    width: 44, height: 44,
-    borderRadius: 13,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  ctaEmoji: { fontSize: 22 },
-  ctaText: { flex: 1 },
-  ctaTitle: {
-    fontFamily: "Manrope-Bold",
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 3,
-  },
-  ctaSub: {
-    fontFamily: "Manrope-Regular",
-    fontSize: 11,
-    color: "rgba(255,255,255,0.75)",
-    lineHeight: 15,
-  },
-  ctaArrow: {
-    width: 28, height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
 });
