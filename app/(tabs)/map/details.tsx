@@ -1,14 +1,75 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import React from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { auth, db } from "../../../src/services/firebase";
 import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
+import { generateUniqueValidationCode } from "../../utils/validation-code";
 import { COLLECTION_POINTS } from "./index-map";
 
 export default function CollectionPointDetails() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const point = COLLECTION_POINTS.find((item) => item.id === id);
+  const [isCreatingDelivery, setIsCreatingDelivery] = React.useState(false);
+
+  async function handleCreateDelivery() {
+    const user = auth.currentUser;
+
+    if (!user || !point) {
+      Alert.alert("Atenção", "Faça login para registrar a entrega.");
+      return;
+    }
+
+    setIsCreatingDelivery(true);
+
+    try {
+      const validationCode = await generateUniqueValidationCode();
+      const deliveryRef = await addDoc(collection(db, "schedules"), {
+        userId: user.uid,
+        userName: user.displayName || "",
+        userEmail: user.email || "",
+        deliveryType: "collection_point",
+        collectionPointId: point.id,
+        pointName: point.title,
+        pointAddress: point.adress,
+        pointHours: point.openingHours,
+        ecoPoints: 50,
+        status: "pending",
+        validationCode,
+        pointsGranted: false,
+        createdAt: serverTimestamp(),
+      });
+
+      router.push({
+        pathname: "/(tabs)/map/confirm",
+        params: {
+          id: point.id,
+          scheduleId: deliveryRef.id,
+          validationCode,
+        },
+      });
+    } catch (error) {
+      console.error("[COLLECTION-POINT] Erro ao registrar entrega:", error);
+      Alert.alert(
+        "Erro",
+        "Não foi possível gerar o código da entrega. Tente novamente.",
+      );
+    } finally {
+      setIsCreatingDelivery(false);
+    }
+  }
 
   if (!point) {
     return <Text>Ecoponto não encontrado</Text>;
@@ -91,14 +152,22 @@ export default function CollectionPointDetails() {
             <TouchableOpacity
               style={styles.btnPrincipal}
               activeOpacity={0.9}
-              onPress={() =>
-                router.push({
-                  pathname: "/(tabs)/map/confirm",
-                  params: { id: point.id },
-                })
-              }
+              disabled={isCreatingDelivery}
+              onPress={handleCreateDelivery}
             >
-              <Text style={styles.btnPrincipalTexto}>Confirmar Entrega</Text>
+              {isCreatingDelivery ? (
+                <ActivityIndicator color={COLORS.onPrimary} />
+              ) : (
+                <Text style={styles.btnPrincipalTexto}>Gerar código da entrega</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btnSecondary}
+              activeOpacity={0.9}
+              disabled={isCreatingDelivery}
+              onPress={() => router.push("/confirm-delivery")}
+            >
+              <Text style={styles.btnSecondaryText}>Já tenho um código</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -249,6 +318,22 @@ rewardPoints: {
     color: "#003824",
     fontSize: 16,
     fontWeight: "700",
+  },
+  btnSecondary: {
+    width: "100%",
+    maxWidth: 340,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.10)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  btnSecondaryText: {
+    color: COLORS.onSurface,
+    fontSize: 14,
+    fontFamily: "Manrope-Regular",
   },
   
 });

@@ -19,7 +19,6 @@ import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
 import { getLevel } from "../../utils/levels";
 
-
 export default function Rewards() {
   const { fontsLoaded } = useAppFonts();
    const router = useRouter();

@@ -1,78 +1,26 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import QRCode from "react-native-qrcode-svg";
 import { useAppFonts } from "../../../hooks/use-App-Fonts";
-import { auth } from "../../../src/services/firebase";
 import { WebContainer } from "../../components/WebContainer";
 import { COLORS } from "../../themes";
-import { awardDeliveryPoints, hasBeenAwarded } from "../../utils/rewards";
 
 export default function CollectionPointConfirm() {
-  const { id } = useLocalSearchParams();
+  const params = useLocalSearchParams<{
+    id?: string;
+    scheduleId?: string;
+    validationCode?: string;
+  }>();
   const router = useRouter();
   const { fontsLoaded } = useAppFonts();
-  const user = auth.currentUser;
-  const [isAwardingPoints, setIsAwardingPoints] = React.useState(false);
-
-  const handleAwardPoints = async (destination: string) => {
-    if (!user) {
-      Alert.alert("Atenção", "Usuário não autenticado.");
-      return;
-    }
-
-    if (!id) {
-      Alert.alert("Erro", "ID do ponto de coleta não encontrado.");
-      return;
-    }
-
-    try {
-      setIsAwardingPoints(true);
-      
-      console.log("[COLLECTION-CONFIRM] Verificando se entrega já foi recompensada");
-
-      // Verifica se já foi recompensado
-      const alreadyAwarded = await hasBeenAwarded(String(id), user.uid);
-      
-      if (alreadyAwarded) {
-        console.warn("[COLLECTION-CONFIRM] Entrega já foi recompensada");
-        Alert.alert(
-          "Entrega já confirmada",
-          "Os pontos dessa entrega já foram creditados à sua conta."
-        );
-        if (destination === "home") {
-          router.replace("/home");
-        } else {
-          router.push("/rewards/how-it-works");
-        }
-        return;
-      }
-
-      console.log("[COLLECTION-CONFIRM] Iniciando award de 50 pontos");
-
-      // Adiciona os pontos com proteção
-      const success = await awardDeliveryPoints(String(id), user.uid, 50);
-
-      if (success) {
-        console.log("[COLLECTION-CONFIRM] 50 pontos adicionados com sucesso");
-        Alert.alert("Sucesso!", "50 ecopontos foram creditados à sua conta.");
-      } else {
-        console.warn("[COLLECTION-CONFIRM] Award falhou");
-        Alert.alert("Atenção", "A entrega já foi recompensada.");
-      }
-
-      if (destination === "home") {
-        router.replace("/home");
-      } else {
-        router.push("/rewards/index-rewards");
-      }
-    } catch (error) {
-      console.log("[COLLECTION-CONFIRM] Erro ao adicionar pontos:", error);
-      Alert.alert("Erro", "Não foi possível confirmar a entrega agora. Tente novamente.");
-    } finally {
-      setIsAwardingPoints(false);
-    }
-  };
 
   if (!fontsLoaded) {
     return null;
@@ -85,84 +33,82 @@ export default function CollectionPointConfirm() {
       showsVerticalScrollIndicator={false}
     >
       <WebContainer style={styles.container}>
-          <View style={styles.successBadge}>
-                  <View style={styles.successInner}>
-                    <MaterialIcons name="check" size={34} color={COLORS.onPrimary} />
-                  </View>
-                        </View>
-       
-        <Text style={styles.title}>Entrega {"\n"} Confirmada!</Text>
+        <View style={styles.successBadge}>
+          <View style={styles.successInner}>
+            <MaterialIcons
+              name="qr-code"
+              size={36}
+              color={COLORS.onPrimary}
+            />
+          </View>
+        </View>
+
+        <Text style={styles.title}>Entrega registrada!</Text>
         <Text style={styles.subtitle}>
-          Obrigado por entregar no ponto parceiro. Seus ecopontos serão creditados em breve.
+          Apresente este código no ponto de coleta. Os ecopontos serão liberados
+          depois que a entrega for validada.
         </Text>
 
+        {params.validationCode ? (
+          <View style={styles.validationCard}>
+            <Text style={styles.validationEyebrow}>CÓDIGO DE VALIDAÇÃO</Text>
+
+            <View style={styles.qrCodeBox}>
+              <QRCode
+                value={params.validationCode}
+                size={168}
+                color="#0B1326"
+                backgroundColor="#FFFFFF"
+              />
+            </View>
+
+            <Text selectable style={styles.validationCode}>
+              {params.validationCode}
+            </Text>
+            <Text style={styles.validationDescription}>
+              Este QR Code representa o mesmo código acima. Não é necessário
+              utilizar a câmera nesta demonstração.
+            </Text>
+          </View>
+        ) : null}
+
         <View style={styles.pointsCard}>
-          <Text style={styles.pointsTitle}>Recompensa Estimada</Text>
+          <Text style={styles.pointsTitle}>Recompensa pendente</Text>
           <Text style={styles.pointsValue}>+50 Ecopontos</Text>
           <Text style={styles.pointsDescription}>
-            Mantenha a entrega organizada para assegurar a pontuação.
+            A pontuação será adicionada uma única vez após a confirmação.
           </Text>
         </View>
 
-       { /* Impacto Ambiental */}
+        <TouchableOpacity
+          style={styles.primaryButton}
+          activeOpacity={0.9}
+          onPress={() =>
+            router.push({
+              pathname: "/confirm-delivery",
+              params: {
+                scheduleId: params.scheduleId || "",
+                validationCode: params.validationCode || "",
+              },
+            })
+          }
+        >
+          <Text style={styles.primaryButtonText}>Validar entrega</Text>
+          <MaterialIcons
+            name="verified"
+            size={18}
+            color={COLORS.onPrimary}
+          />
+        </TouchableOpacity>
 
-          <View style={styles.row}>
-              <View style={styles.smallCard}>
-                   <MaterialIcons
-                              name="opacity"
-                              size={60}
-                              color="#4FA3E8"
-                             
-                            />
-
-                <Text style={styles.smallCardValue}>250 L</Text>
-                <Text style={styles.smallCardLabel}>
-                  ÁGUA PRESERVADA
-                </Text>
-              </View>
-       
-              
-              <View style={styles.smallCard}>
-                       <MaterialIcons
-                              name="eco"
-                              size={60}
-                              color={COLORS.primary}
-                             
-                            />
-
-                <Text style={styles.smallCardValue}>2.4 g</Text>
-                <Text style={styles.smallCardLabel}>
-                  C02 REDUZIDO
-                </Text>
-              </View>
-            
-        
-          </View>
-
-
-
-       {/*Botoes final*/}
-
-            <TouchableOpacity
-                style={styles.primaryButton}
-                activeOpacity={0.9}
-                onPress={() => handleAwardPoints("home")}
-                disabled={isAwardingPoints}
-              >
-                <Text style={styles.primaryButtonText}>{isAwardingPoints ? "Processando..." : "Ir para Início"}</Text>
-                <MaterialIcons name="arrow-forward" size={18} color={COLORS.onPrimary} />
-              </TouchableOpacity>
-      
         <TouchableOpacity
           style={styles.secondaryButton}
           activeOpacity={0.9}
-          disabled={isAwardingPoints}
-          onPress={() => handleAwardPoints("rewards")}
+          onPress={() => router.replace("/home")}
         >
-          <Text style={styles.secondaryButtonText}>{isAwardingPoints ? "Processando..." : "Consultar saldo de pontos"}</Text>
+          <Text style={styles.secondaryButtonText}>Validar mais tarde</Text>
         </TouchableOpacity>
       </WebContainer>
-
     </ScrollView>
   );
 }
@@ -184,116 +130,102 @@ const styles = StyleSheet.create({
     paddingTop: 24,
   },
   successBadge: {
-    width: 102,
-    height: 102,
-    borderRadius: 56,
+    width: 92,
+    height: 92,
+    borderRadius: 46,
     backgroundColor: "rgba(16, 185, 129, 0.18)",
     alignSelf: "center",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 18,
-    marginTop:20,
+    marginTop: 20,
   },
   successInner: {
-    width: 74,
-    height: 74,
-    borderRadius: 42,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     backgroundColor: COLORS.primaryContainer,
     alignItems: "center",
     justifyContent: "center",
   },
   title: {
     fontFamily: "Manrope-Bold",
-    fontSize: 32,
+    fontSize: 30,
     color: COLORS.onSurface,
     marginBottom: 10,
     textAlign: "center",
   },
   subtitle: {
     fontFamily: "Manrope-Regular",
-    fontSize: 16,
+    fontSize: 15,
     color: COLORS.onSurfaceVariant,
-    lineHeight: 20,
+    lineHeight: 22,
     marginBottom: 24,
     textAlign: "center",
   },
-  summaryCard: {
+  validationCard: {
     backgroundColor: COLORS.surfaceContainer,
     borderRadius: 20,
     padding: 20,
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontFamily: "Manrope-Bold",
-    fontSize: 16,
-    color: COLORS.onSurface,
-    marginBottom: 12,
-  },
-  infoRow: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "rgba(78, 222, 163, 0.24)",
+    marginBottom: 18,
   },
-  infoText: {
+  validationEyebrow: {
+    color: COLORS.primary,
+    fontSize: 10,
+    letterSpacing: 1.2,
+    fontFamily: "Manrope-Bold",
+    marginBottom: 16,
+  },
+  qrCodeBox: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+  },
+  validationCode: {
+    color: COLORS.primary,
+    fontSize: 30,
+    letterSpacing: 2,
+    fontFamily: "Manrope-Bold",
+    marginTop: 16,
+  },
+  validationDescription: {
+    color: COLORS.onSurfaceVariant,
+    fontSize: 12,
+    lineHeight: 18,
     fontFamily: "Manrope-Regular",
-    fontSize: 14,
-    color: COLORS.onSurface,
-    flex: 1,
+    textAlign: "center",
+    marginTop: 8,
   },
   pointsCard: {
     backgroundColor: COLORS.primary + "15",
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: 16,
+    padding: 18,
     marginBottom: 24,
-    textAlign:"center",
+    alignItems: "center",
   },
   pointsTitle: {
     fontFamily: "Manrope-Bold",
-    fontSize: 14,
+    fontSize: 13,
     color: COLORS.onSurface,
     marginBottom: 6,
-    textAlign:"center",
   },
   pointsValue: {
     fontFamily: "Manrope-Bold",
-    fontSize: 28,
+    fontSize: 26,
     color: COLORS.primary,
     marginBottom: 6,
-    textAlign:"center",
   },
   pointsDescription: {
     fontFamily: "Manrope-Regular",
-    fontSize: 14,
+    fontSize: 12,
+    lineHeight: 18,
     color: COLORS.onSurfaceVariant,
-    
+    textAlign: "center",
   },
-  stepsLabel: {
-    fontFamily: "Manrope-Bold",
-    fontSize: 14,
-    color: COLORS.onSurface,
-    marginBottom: 12,
-  },
-  stepItem: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    marginBottom: 12,
-  },
-  stepNumber: {
-    fontFamily: "Manrope-Bold",
-    fontSize: 16,
-    color: COLORS.primary,
-    minWidth: 24,
-  },
-  stepText: {
-    flex: 1,
-    fontFamily: "Manrope-Regular",
-    fontSize: 14,
-    color: COLORS.onSurfaceVariant,
-    lineHeight: 20,
-  },
- primaryButton: {
+  primaryButton: {
     height: 56,
     borderRadius: 8,
     backgroundColor: COLORS.primaryContainer,
@@ -311,31 +243,14 @@ const styles = StyleSheet.create({
   secondaryButton: {
     height: 52,
     borderRadius: 8,
-    backgroundColor: "transparent",
     borderWidth: 1,
     borderColor: "rgba(255,255,255,0.08)",
     alignItems: "center",
     justifyContent: "center",
   },
   secondaryButtonText: {
-    color: "#F2F6FF",
+    color: COLORS.onSurface,
     fontSize: 14,
     fontFamily: "Manrope-Regular",
   },
-    row: { flexDirection: "row", gap: 16, marginBottom: 16 },
-
-    smallCardValue: { fontSize: 20, color: COLORS.onSurface },
-  smallCardLabel: {
-    fontSize: 12,
-    fontFamily: "Manrope-ExtraBold",
-    color: COLORS.onSurfaceVariant,
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-
-    smallCard: {
-    flex: 1,
-    backgroundColor: COLORS.surfaceContainer,
-    padding:16,
-    }
 });

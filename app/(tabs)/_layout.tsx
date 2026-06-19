@@ -119,6 +119,13 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="confirm-delivery"
+        options={{
+          href: null,
+        }}
+      />
+
       
     </Tabs>
   );
