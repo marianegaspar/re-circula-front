@@ -147,7 +147,3 @@ src/services/firebase.ts
 ## Status do Projeto
 
 Projeto em desenvolvimento, com foco em prototipação de uma solução para logística reversa e descarte responsável de eletrônicos.
-
-## Licença
-
-Este projeto ainda não possui uma licença definida.
