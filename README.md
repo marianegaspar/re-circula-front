@@ -1,50 +1,153 @@
-# Welcome to your Expo app 👋
+# ReCircula
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo mobile para conectar pessoas a pontos de descarte, coleta e recompensas por reciclagem de eletrônicos.
 
-## Get started
+O ReCircula ajuda usuários a dar um destino correto a resíduos eletrônicos, encontrar ecopontos parceiros, agendar coletas e acumular ecopontos que podem ser trocados por benefícios.
 
-1. Install dependencies
+## Funcionalidades
 
-   ```bash
-   npm install
-   ```
+- Cadastro e login com Firebase Authentication.
+- Perfil do usuário com endereço, saldo de pontos e histórico de impacto.
+- Listagem de pontos de coleta parceiros.
+- Detalhes do ecoponto com endereço, horários, itens aceitos e geração de código de entrega.
+- Fluxo de agendamento de coleta com seleção de categoria, itens, data e período.
+- Sistema de ecopontos com saldo em tempo real via Firestore.
+- Tela de recompensas com resgate por pontos.
+- Interface adaptada para mobile e web com Expo Router.
 
-2. Start the app
+## Tecnologias
 
-   ```bash
-   npx expo start
-   ```
+- [Expo](https://expo.dev/)
+- [React Native](https://reactnative.dev/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Expo Router](https://docs.expo.dev/router/introduction/)
+- [Firebase Authentication](https://firebase.google.com/docs/auth)
+- [Cloud Firestore](https://firebase.google.com/docs/firestore)
+- React Native Calendars
+- React Native Maps
+- Expo Google Fonts
 
-In the output, you'll find options to open the app in a
+## Requisitos
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Antes de começar, instale:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Node.js
+- npm
+- Expo CLI ou use `npx expo`
+- Expo Go no celular, ou um emulador Android/iOS configurado
 
-## Get a fresh project
+## Como Executar
 
-When you're ready, run:
+Clone o repositório:
 
 ```bash
-npm run reset-project
+git clone <url-do-repositorio>
+cd ReCircula
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Instale as dependências:
 
-## Learn more
+```bash
+npm install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Inicie o projeto:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm start
+```
 
-## Join the community
+Depois, escolha onde abrir:
 
-Join our community of developers creating universal apps.
+- Expo Go, escaneando o QR Code.
+- Emulador Android.
+- Simulador iOS.
+- Navegador, usando o modo web.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Scripts
+
+```bash
+npm start
+```
+
+Inicia o servidor de desenvolvimento do Expo.
+
+```bash
+npm run android
+```
+
+Executa o app no Android.
+
+```bash
+npm run ios
+```
+
+Executa o app no iOS.
+
+```bash
+npm run web
+```
+
+Executa o app na web.
+
+```bash
+npm run lint
+```
+
+Executa a análise de lint do projeto.
+
+## Estrutura do Projeto
+
+```text
+ReCircula/
+├── app/
+│   ├── (tabs)/
+│   │   ├── colect/        # Fluxo de seleção e agendamento de coleta
+│   │   ├── map/           # Pontos de coleta e confirmação de entrega
+│   │   ├── rewards/       # Recompensas e explicação dos pontos
+│   │   ├── home.tsx       # Tela inicial autenticada
+│   │   └── profile.tsx    # Perfil do usuário
+│   ├── components/        # Componentes reutilizáveis
+│   ├── utils/             # Funções auxiliares
+│   ├── index.tsx          # Onboarding
+│   ├── login.tsx          # Login
+│   └── register.tsx       # Cadastro
+├── hooks/                 # Hooks compartilhados
+├── src/services/          # Integrações externas
+│   └── firebase.ts        # Configuração do Firebase
+├── constants/             # Constantes de tema
+├── assets/                # Imagens, ícones e fontes
+└── package.json
+```
+
+## Firebase
+
+O app usa Firebase Authentication para autenticação e Cloud Firestore para armazenar dados de usuários, agendamentos, entregas e pontuação.
+
+As principais coleções utilizadas são:
+
+- `users`: dados do usuário, endereço e saldo de pontos.
+- `schedules`: agendamentos, entregas em ecopontos, status e códigos de validação.
+
+Para rodar com outro projeto Firebase, atualize as credenciais em:
+
+```text
+src/services/firebase.ts
+```
+
+## Fluxos Principais
+
+1. O usuário cria uma conta ou faz login.
+2. A partir da home, pode agendar uma coleta ou consultar pontos parceiros.
+3. No agendamento, seleciona itens, data e período.
+4. Em pontos de coleta, pode gerar um código de entrega.
+5. Ao concluir ações válidas, acumula ecopontos.
+6. Na área de recompensas, usa os pontos para resgatar benefícios.
+
+## Status do Projeto
+
+Projeto em desenvolvimento, com foco em prototipação de uma solução para logística reversa e descarte responsável de eletrônicos.
+
+## Licença
+
+Este projeto ainda não possui uma licença definida.
